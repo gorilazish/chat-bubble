@@ -1,30 +1,7 @@
 import * as React from 'react'
-import './App.css'
 import { Launcher } from 'react-chat-window'
+import { createNewConversation, mockParticipants } from './firebase/conversations'
 
-const mockMessages = [
-  {
-    author: 'them',
-    type: 'text',
-    data: {
-      text: 'some text',
-    },
-  },
-  {
-    author: 'me',
-    type: 'text',
-    data: {
-      text: 'someCode',
-    },
-  },
-]
-
-export interface IMessage {
-  message?: string | null
-  uid?: string | null
-  timestamp: number
-  tempUid?: string | null
-}
 
 interface IState {
   messageList: any
@@ -35,11 +12,16 @@ class App extends React.Component<{}, IState> {
   constructor(props) {
     super(props)
     this.state = {
-      messageList: mockMessages,
+      messageList: [],
     }
   }
 
   private _onMessageWasSent(message) {
+    const postOpts = {
+      participants: mockParticipants,
+      title: 'Widget lead',
+    }
+    createNewConversation(postOpts, message.data.text || message.data.code)
     this.setState({
       messageList: [...this.state.messageList, message],
     })

@@ -2,8 +2,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import App from './App'
 import registerServiceWorker from './registerServiceWorker'
-import './index.css'
-import { initFb } from './lib/firebase'
+import { initFb } from './firebase/init'
 
 ReactDOM.render(
   <App />,

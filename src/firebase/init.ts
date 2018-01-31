@@ -1,4 +1,5 @@
 import firebase from 'firebase'
+import fw from '@newsioaps/firebase-wrapper'
 
 const firebaseConfigStaging = {
     apiKey: 'AIzaSyD8wt8BjLe_vh8s8QG2khZt0BZmFbO-by8',
@@ -18,16 +19,8 @@ const firebaseConfigProd = {
     messagingSenderId: '13051232692',
   }
 
-let db
-
 export function initFb() {
-    const firebaseApp = firebase.initializeApp(process.env.NODE_ENV === 'production' ?
+    firebase.initializeApp(process.env.NODE_ENV === 'production' ?
     firebaseConfigProd : firebaseConfigStaging)
-    db = firebaseApp.database()
-}
-
-export function getDB() {
-    if (db) {
-        return db
-    }
-}
+    fw.initFirebase(firebase.database(), firebase.auth(), null)
+  }
