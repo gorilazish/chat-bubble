@@ -1,7 +1,6 @@
 import * as React from 'react'
-import { Launcher } from 'react-chat-window'
+import { Launcher } from './widget'
 import fw from '@newsioaps/firebase-wrapper'
-import {  } from '@newsioaps/firebase-wrapper/types'
 import { createNewConversation, addComment, mockParticipants, mockUser } from './firebase/conversations'
 
 type AuthorType = 'me' | 'them'
@@ -68,7 +67,7 @@ class App extends React.Component<{}, IState> {
     this.setState({ subscriber })
   }
 
-  private _onMessageWasSent(message) {
+  private onMessageWasSent = (message) => {
     const messageText = message.data.text || message.data.code
 
     // create temp user
@@ -101,7 +100,7 @@ class App extends React.Component<{}, IState> {
             teamName: 'react-live-chat',
             imageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
           }}
-          onMessageWasSent={this._onMessageWasSent.bind(this)}
+          onMessageWasSent={this.onMessageWasSent}
           messageList={this.state.messageList}
           showEmoji
         />
