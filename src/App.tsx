@@ -1,19 +1,62 @@
 import * as React from 'react'
 import './App.css'
+import { Launcher } from 'react-chat-window'
 
-const logo = require('./logo.svg')
+const mockMessages = [
+  {
+    author: 'them',
+    type: 'text',
+    data: {
+      text: 'some text',
+    },
+  },
+  {
+    author: 'me',
+    type: 'text',
+    data: {
+      text: 'someCode',
+    },
+  },
+]
 
-class App extends React.Component {
+export interface IMessage {
+  message?: string | null
+  uid?: string | null
+  timestamp: number
+  tempUid?: string | null
+}
+
+interface IState {
+  messageList: any
+}
+
+class App extends React.Component<{}, IState> {
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      messageList: mockMessages,
+    }
+  }
+
+  private _onMessageWasSent(message) {
+    this.setState({
+      messageList: [...this.state.messageList, message],
+    })
+  }
+
   public render() {
     return (
       <div className='App'>
-        <header className='App-header'>
-          <img src={logo} className='App-logo' alt='logo' />
-          <h1 className='App-title'>Welcome to React</h1>
-        </header>
-        <p className='App-intro'>
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
+        <Launcher
+          agentProfile={{
+            teamName: 'react-live-chat',
+            imageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
+          }}
+          onMessageWasSent={this._onMessageWasSent.bind(this)}
+          messageList={this.state.messageList}
+          showEmoji
+        />
       </div>
     )
   }

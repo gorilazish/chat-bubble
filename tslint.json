@@ -24,7 +24,7 @@
       "interface-name": true,
       "object-literal-sort-keys": false,
       "arrow-parens": false,
-      "no-console": [true, "log"],
+      "no-console": [false, "log"],
       "member-ordering": false,
       "ordered-imports": false,
       "no-var-requires": false,
