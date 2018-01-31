@@ -1,7 +1,7 @@
 import fw from '@newsioaps/firebase-wrapper'
 
 
-const mockUser = {
+export const mockUser = {
     uid: 'aQaTeLE1SBfEDKCJJErW94gGJvD2',
 }
 
@@ -33,7 +33,8 @@ export interface IParticipant {
 
 export async function createNewConversation(postOpts, message) {
     const postId = await addPost(postOpts)
-    await sendComment(postId, message)
+    await addComment(postId, message)
+    return postId || null
 }
 
 export function addPost(postOpts) {
@@ -49,7 +50,7 @@ export function addPost(postOpts) {
     }
 }
 
-export function sendComment(postId, message) {
+export function addComment(postId, message) {
     const commentObject: ISendMessageOption = {
         uid: mockUser.uid,
         postId,
