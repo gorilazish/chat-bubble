@@ -1,8 +1,8 @@
 // This snippet needs to be embedded into users website
 
 ;(function() {
-  var options = {
-    userId: ''
+  var BelloWidgetOptions = {
+    userId: 'martynas'
   }
  
   var proto = document.location.protocol,
@@ -13,10 +13,6 @@
   s.type = "text/javascript"
   s.async = true
   s.src = url + "/widget-loader.js"
- 
-  s.onload = function() {
-    window.BelloWidget.init(options)
-  }
  
   var x = document.getElementsByTagName("script")[0]
   x.parentNode.insertBefore(s, x)
