@@ -1,5 +1,5 @@
-import firebase from 'firebase'
 import fw from '@newsioaps/firebase-wrapper'
+import firebase from 'firebase'
 
 const firebaseConfigStaging = {
     apiKey: 'AIzaSyD8wt8BjLe_vh8s8QG2khZt0BZmFbO-by8',

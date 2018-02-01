@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
-// import { initFb } from './firebase/init'
+import { initFb } from './firebase/init'
 
 function init(): HTMLElement {
   const div = document.createElement('div')
@@ -17,6 +17,6 @@ function render(element: HTMLElement) {
   )
 }
 
-// initFb()
+initFb()
 const anchor = init()
 render(anchor)
