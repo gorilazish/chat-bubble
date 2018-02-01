@@ -6,7 +6,7 @@
   }
  
   var proto = document.location.protocol,
-    host = "bello-widget.firebaseapp.com",
+    host = "widget.belloforwork.com",
     url = proto + "//" + host
  
   var s = document.createElement("script")
