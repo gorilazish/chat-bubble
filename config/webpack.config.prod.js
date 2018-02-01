@@ -13,6 +13,8 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const GenerateAssetPlugin = require('generate-asset-webpack-plugin')
+const createWidgetLoader = require('../embed/widget-loader')
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -262,6 +264,14 @@ module.exports = {
         minifyURLs: true,
       },
     }),
+
+    new GenerateAssetPlugin({
+      filename: 'widget-loader.js',
+      fn: (compilation, cb) => {
+        cb(null, createWidgetLoader(compilation))
+      },
+    }),
+
     // Makes some environment variables available to the JS code, for example:
     // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
     // It is absolutely essential that NODE_ENV was set to production here.
