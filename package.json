@@ -51,6 +51,7 @@
     "@types/node": "^9.4.0",
     "@types/react": "^16.0.35",
     "@types/react-dom": "^16.0.3",
+    "generate-asset-webpack-plugin": "^0.3.0",
     "typescript": "^2.6.2"
   },
   "jest": {
