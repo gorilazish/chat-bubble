@@ -6,6 +6,8 @@ import { initFb } from './firebase/init'
 function init(): HTMLElement {
   const div = document.createElement('div')
   div.id = 'bello-widget-root'
+  div.style.position = 'absolute'
+  div.style.zIndex = '2147483648'
   document.body.appendChild(div)
   return div
 }
