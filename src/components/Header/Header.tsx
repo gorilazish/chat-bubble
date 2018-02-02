@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-const closeIcon = require('../../assets/close-icon.png')
+import closeIcon from '../../assets/close-icon.png'
 
 import './Header.css'
 
