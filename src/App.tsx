@@ -94,7 +94,15 @@ class App extends React.Component<{}, IState> {
 
   public render() {
     return (
-      <div className='App'>
+      <div
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden',
+          zIndex: 2147483647,
+        }}
+      >
         <Launcher
           agentProfile={{
             teamName: 'react-live-chat',
