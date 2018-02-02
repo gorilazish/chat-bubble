@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-// import closeIcon from './../assets/close-icon.png'
-const closeIcon = require('./../assets/close-icon.png')
+const closeIcon = require('../../assets/close-icon.png')
+
+import './Header.css'
 
 
 interface IProps {

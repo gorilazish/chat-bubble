@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
-import ChatWindow from './ChatWindow'
-// import launcherIcon from './../assets/logo-no-bg.svg'
-// import launcherIconActive from './../assets/close-icon.png'
-import { IWidgetMessage, IAgentProfile } from 'types'
+import ChatWindow from '../ChatWindow'
+import launcherIcon from '../../assets/logo-no-bg.svg'
+import launcherIconActive from '../../assets/close-icon.png'
+import { IWidgetMessage, IAgentProfile } from 'types/types'
 
-const launcherIcon = require('./../assets/logo-no-bg.svg')
-const launcherIconActive = require('./../assets/close-icon.png')
+import './Launcher.css'
+
 
 interface IProps {
   isOpen?: boolean
@@ -14,7 +14,7 @@ interface IProps {
   messageList: IWidgetMessage[]
   agentProfile: IAgentProfile
   onMessageWasSent: (message: IWidgetMessage) => void
-  handleClick?: () => void
+  handleClick?: (e: React.SyntheticEvent<HTMLInputElement>) => void
 }
 
 interface IState {
@@ -32,13 +32,13 @@ class Launcher extends Component<IProps, IState> {
     }
   }
 
-  private handleClick = () => {
+  private handleClick = (e) => {
+    this.setState({
+      isOpen: !this.state.isOpen,
+    })
+
     if (this.props.handleClick !== undefined) {
-      this.props.handleClick()
-    } else {
-      this.setState({
-        isOpen: !this.state.isOpen,
-      })
+      this.props.handleClick(e)
     }
   }
 
@@ -52,7 +52,7 @@ class Launcher extends Component<IProps, IState> {
       <div>
         <div>
         </div>
-        <div className={classList.join(' ')} onClick={this.handleClick.bind(this)}>
+        <div className={classList.join(' ')} onClick={this.handleClick}>
           <MessageCount count={this.props.newMessagesCount} isOpen={isOpen} />
           <img className={'sc-open-icon'} src={launcherIconActive} />
           <img className={'sc-closed-icon'} src={launcherIcon} />

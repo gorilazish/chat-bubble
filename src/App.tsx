@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Launcher } from './widget'
+import { Launcher } from './components'
 import fw from '@newsioaps/firebase-wrapper'
 import { createNewConversation, addComment, mockParticipants, mockUser } from './firebase/conversations'
 
@@ -18,6 +18,7 @@ interface IState {
   messageList: any
   conversationId: string | null
   subscriber: any
+  unreadCount: number
 }
 
 class App extends React.Component<{}, IState> {
@@ -28,6 +29,7 @@ class App extends React.Component<{}, IState> {
       messageList: [],
       conversationId: null, // todo: get conversationId from localStorage/cookie
       subscriber: null,
+      unreadCount: 0,
     }
   }
 
@@ -55,6 +57,7 @@ class App extends React.Component<{}, IState> {
   }
 
   private syncConversation(conversationId) {
+    this.syncUnreadCount(conversationId)
     const subscriber =  fw.conversations.paginateMessages(conversationId, feed => {
       const messageList: IWidgetMessage[] = []
       feed.forEach((comment, _id) => {
@@ -65,6 +68,21 @@ class App extends React.Component<{}, IState> {
       this.setState({ messageList })
     })
     this.setState({ subscriber })
+  }
+
+  private syncUnreadCount(conversationId) {
+    const uid = mockUser.uid
+    fw.feed.syncUnreadMessages(uid, unreadCountByPostId => {
+      const unreadCount = unreadCountByPostId[conversationId] || 0
+      this.setState({ unreadCount })
+    })
+  }
+
+  private handleLauncherClick = (_e) => {
+    const uid = mockUser.uid
+    if (this.state.conversationId) {
+      fw.feed.clearUnreadMessages(uid, this.state.conversationId)
+    }
   }
 
   private onMessageWasSent = (message) => {
@@ -101,8 +119,10 @@ class App extends React.Component<{}, IState> {
             imageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
           }}
           onMessageWasSent={this.onMessageWasSent}
+          newMessagesCount={this.state.unreadCount}
           messageList={this.state.messageList}
           showEmoji
+          handleClick={this.handleLauncherClick}
         />
       </div>
     )
