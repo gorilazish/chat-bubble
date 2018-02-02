@@ -1,17 +1,27 @@
-interface EventData {
-  name: string
-}
-
-export interface ToggleEvent extends EventData {
-  name: 'toggle'
-  width: string
-  height: string
-}
-
 (function() {
+  interface IEventData {
+    name: string
+  }
+  
+  interface IToggleEvent extends IEventData {
+    name: 'toggle'
+    width: string
+    height: string
+  }
+
+  function documentReady(cb) {
+    if (document.body) {
+      cb()
+    } else {
+      document.addEventListener("DOMContentLoaded", function() {
+        cb()
+      })
+    }
+  }
+
   const FRAME_ID = 'bello-widget-frame'
 
-  function handleToggleEvent(data: ToggleEvent) {
+  function handleToggleEvent(data: IToggleEvent) {
     const { width, height } = data
     const frame = document.getElementById(FRAME_ID)
     if (frame) {
@@ -22,7 +32,7 @@ export interface ToggleEvent extends EventData {
 
   function postMessageHandler(event: MessageEvent) {
     const origin = event.origin
-    const data: EventData = event.data 
+    const data: IEventData = event.data 
 
     const allowedOrigins = [
       'https://widget.belloforwork.com', 
@@ -31,7 +41,7 @@ export interface ToggleEvent extends EventData {
 
     if (allowedOrigins.indexOf(origin) !== -1) {
       if (data && data.name === "toggle") {
-        handleToggleEvent(data as ToggleEvent);
+        handleToggleEvent(data as IToggleEvent);
       }
     }
   }
@@ -64,12 +74,12 @@ export interface ToggleEvent extends EventData {
 
     root.appendChild(frame);
 
-    document.addEventListener("DOMContentLoaded", function() {
+    documentReady(() => {
       document.body.appendChild(root);
-    });
+    })
   }
 
-  function attachHandlers() {
+  function attachPostMessageHandlers() {
     if (window.addEventListener) {
       window.addEventListener("message", postMessageHandler, false);
     } else {
@@ -78,11 +88,6 @@ export interface ToggleEvent extends EventData {
     }
   }
 
-  // starts here
-  function init() {
-    createDomElements();
-    attachHandlers();
-  }
-
-  init();
+  createDomElements();
+  attachPostMessageHandlers();
 })();
