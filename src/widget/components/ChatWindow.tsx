@@ -2,13 +2,12 @@ import React, { Component } from 'react'
 import MessageList from './MessageList'
 import UserInput from './UserInput'
 import Header from './Header'
-import { IWidgetMessage, IAgentProfile } from '../../types'
+import { IWidgetMessage } from '../../types'
 
 interface IProps {
   isOpen?: boolean
   showEmoji: boolean
   messageList: IWidgetMessage[]
-  agentProfile: IAgentProfile
   onClose: () => void
   onUserInputSubmit: (message: IWidgetMessage) => void
 }
@@ -35,11 +34,7 @@ class ChatWindow extends Component<IProps, IState> {
     const classList = ['sc-chat-window', this.props.isOpen ? 'opened' : 'closed']
     return (
       <div className={classList.join(' ')}>
-        <Header
-          teamName={this.props.agentProfile.teamName}
-          imageUrl={this.props.agentProfile.imageUrl}
-          onClose={this.props.onClose}
-        />
+        <Header onClose={this.props.onClose} />
         <MessageList messages={messageList} />
         <UserInput showEmoji={this.props.showEmoji} onSubmit={this.onUserInputSubmit} />
       </div>

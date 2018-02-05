@@ -127,10 +127,6 @@ class App extends React.Component<{}, IState> {
         <Launcher
           showEmoji
           isOpen={this.state.isOpen}
-          agentProfile={{
-            teamName: 'react-live-chat',
-            imageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
-          }}
           onMessageWasSent={this.onMessageWasSent}
           messageList={this.state.messageList}
           handleClick={this.handleLauncherClick}

@@ -12,7 +12,6 @@ interface IProps {
   showEmoji: boolean
   newMessagesCount?: number
   messageList: IWidgetMessage[]
-  agentProfile: IAgentProfile
   onMessageWasSent: (message: IWidgetMessage) => void
   handleClick?: () => void
 }
@@ -62,7 +61,6 @@ class Launcher extends Component<IProps, IState> {
         <ChatWindow
           messageList={this.props.messageList}
           onUserInputSubmit={this.props.onMessageWasSent}
-          agentProfile={this.props.agentProfile}
           isOpen={isOpen}
           onClose={this.handleClick.bind(this)}
           showEmoji={this.props.showEmoji}

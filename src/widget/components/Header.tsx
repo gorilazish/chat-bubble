@@ -1,24 +1,36 @@
 import React, { Component } from 'react'
 import { observer, inject } from 'mobx-react'
-import { RootStore } from '../../stores'
+import { RootStore, UserStore } from '../../stores'
 const closeIcon = require('./../assets/close-icon.png')
 
-interface IProps {
-  imageUrl: string
-  teamName: string
+interface OwnProps {
   onClose: () => void
+}
+
+interface InjectProps {
+  userStore?: UserStore
 }
 
 @inject((stores: RootStore) => ({
   userStore: stores.userStore,
 }))
 @observer
-class Header extends Component<IProps> {
+class Header extends Component<OwnProps & InjectProps> {
   public render() {
+    const userStore = this.props.userStore!
+    const receiverUser = userStore.receiver
+
+    if (!receiverUser) {
+      return null
+    }
+
+    const imageUrl = receiverUser.getSmallPhoto()
+    const name = receiverUser.displayName
+
     return (
       <div className="sc-header">
-        <img className="sc-header--img" src={this.props.imageUrl} alt="" />
-        <div className="sc-header--team-name"> {this.props.teamName} </div>
+        <img className="sc-header--img" src={imageUrl} alt="" />
+        <div className="sc-header--team-name"> {name} </div>
         <div className="sc-header--close-button" onClick={this.props.onClose}>
           <img src={closeIcon} alt="" />
         </div>
