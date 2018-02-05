@@ -55,7 +55,7 @@ class Launcher extends Component<IProps, IState> {
           flexDirection: 'column',
           justifyContent: 'flex-end',
           alignItems: 'flex-end',
-          padding: 16,
+          padding: 8,
         }}
       >
         <div />

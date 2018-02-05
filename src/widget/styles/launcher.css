@@ -24,10 +24,13 @@
 .sc-launcher .sc-closed-icon {
   width: 60px;
   height: 60px;
-  position: fixed;
-  right: 25px;
-  bottom: 25px;
+  position: absolute;
+  bottom: 0;
   transition: opacity 100ms ease-in-out, transform 100ms ease-in-out;
+}
+
+.sc-open-icon {
+  padding: 20px;
 }
 
 .sc-launcher .sc-closed-icon {
@@ -37,7 +40,6 @@
 }
 
 .sc-launcher .sc-open-icon {
-  padding: 20px;
   box-sizing: border-box;
   opacity: 0;
 }
@@ -53,7 +55,7 @@
 }
 
 .sc-launcher:hover {
-  box-shadow: 0 0px 27px 1.5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0px 12px 1.5px rgba(0, 0, 0, 0.2);
 }
 
 .sc-new-messsages-count {

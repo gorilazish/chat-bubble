@@ -7,9 +7,14 @@ html {
   box-sizing: inherit;
 }
 
+body {
+  padding: 0;
+  margin: 0;
+}
+
 .sc-chat-window {
   width: 100%;
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   margin-bottom: 12px;
   box-sizing: border-box;
   background: white;
@@ -28,7 +33,6 @@ html {
 }
 
 .sc-message-list {
-  height: 80%;
   overflow-y: auto;
   background-color: white;
   background-size: 100%;

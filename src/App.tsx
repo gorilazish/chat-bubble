@@ -18,7 +18,10 @@ interface IState {
   messageList: any
   conversationId: string | null
   subscriber: any
+  isOpen: boolean
 }
+
+const isDev = process.env.NODE_ENV === 'development'
 
 class App extends React.Component<{}, IState> {
   constructor(props) {
@@ -27,6 +30,7 @@ class App extends React.Component<{}, IState> {
       messageList: [],
       conversationId: null, // todo: get conversationId from localStorage/cookie
       subscriber: null,
+      isOpen: false,
     }
   }
 
@@ -40,6 +44,30 @@ class App extends React.Component<{}, IState> {
     if (this.state.subscriber) {
       this.state.subscriber.stop()
     }
+  }
+
+  private handleLauncherClick = () => {
+    this.setState(state => {
+      const width = !state.isOpen ? '400px' : '80px'
+      const height = !state.isOpen ? '400px' : '80px'
+      // it's delayed because of the animations
+      window.setTimeout(() => {
+        this.sendLauncherTogglEvent({ width, height })
+      }, !state.isOpen ? 0 : 300)
+
+      return { isOpen: !state.isOpen }
+    })
+  }
+
+  private sendLauncherTogglEvent = (opts: { width: string; height: string }) => {
+    const receiverWindow = isDev ? window : window.parent
+    // todo: event data type safety would be nice...
+    const message = {
+      name: 'toggle',
+      width: opts.width,
+      height: opts.height,
+    }
+    receiverWindow.postMessage(message, '*')
   }
 
   private createMessageFromApi(comment): IWidgetMessage {
@@ -93,24 +121,17 @@ class App extends React.Component<{}, IState> {
 
   public render() {
     return (
-      <div
-        style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          zIndex: 2147483647,
+      <Launcher
+        showEmoji
+        isOpen={this.state.isOpen}
+        agentProfile={{
+          teamName: 'react-live-chat',
+          imageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
         }}
-      >
-        <Launcher
-          agentProfile={{
-            teamName: 'react-live-chat',
-            imageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
-          }}
-          onMessageWasSent={this.onMessageWasSent}
-          messageList={this.state.messageList}
-          showEmoji
-        />
-      </div>
+        onMessageWasSent={this.onMessageWasSent}
+        messageList={this.state.messageList}
+        handleClick={this.handleLauncherClick}
+      />
     )
   }
 }
