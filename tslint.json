@@ -5,6 +5,7 @@
     ],
     "jsRules": {},
     "rules": {
+      "only-arrow-functions": false,
       "semicolon": [true, "never"],
       "quotemark": [true, "single"],
       "no-consecutive-blank-lines": [true, 2],

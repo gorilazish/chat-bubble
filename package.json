@@ -42,7 +42,10 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
+    "clean": "rm -rf build",
+    "build": "npm run clean && npm run build:widget && npm run build:loader",
+    "build:widget": "node scripts/build.js",
+    "build:loader": "tsc --target ES3 embed/loader.ts && mv embed/loader.js build/widget-loader.js",
     "test": "node scripts/test.js --env=jsdom",
     "deploy": "npm run build && firebase deploy --only hosting"
   },
@@ -51,7 +54,6 @@
     "@types/node": "^9.4.0",
     "@types/react": "^16.0.35",
     "@types/react-dom": "^16.0.3",
-    "generate-asset-webpack-plugin": "^0.3.0",
     "typescript": "^2.6.2"
   },
   "jest": {

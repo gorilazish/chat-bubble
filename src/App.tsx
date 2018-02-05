@@ -8,7 +8,7 @@ type MessageType = 'text' | 'code'
 
 interface IWidgetMessage {
   author: AuthorType
-  type: MessageType,
+  type: MessageType
   data: {
     text: string
   }
@@ -18,16 +18,19 @@ interface IState {
   messageList: any
   conversationId: string | null
   subscriber: any
+  isOpen: boolean
 }
 
-class App extends React.Component<{}, IState> {
+const isDev = process.env.NODE_ENV === 'development'
 
+class App extends React.Component<{}, IState> {
   constructor(props) {
     super(props)
     this.state = {
       messageList: [],
       conversationId: null, // todo: get conversationId from localStorage/cookie
       subscriber: null,
+      isOpen: false,
     }
   }
 
@@ -43,19 +46,43 @@ class App extends React.Component<{}, IState> {
     }
   }
 
+  private handleLauncherClick = () => {
+    this.setState(state => {
+      const width = !state.isOpen ? '400px' : '80px'
+      const height = !state.isOpen ? '400px' : '80px'
+      // it's delayed because of the animations
+      window.setTimeout(() => {
+        this.sendLauncherTogglEvent({ width, height })
+      }, !state.isOpen ? 0 : 300)
+
+      return { isOpen: !state.isOpen }
+    })
+  }
+
+  private sendLauncherTogglEvent = (opts: { width: string; height: string }) => {
+    const receiverWindow = isDev ? window : window.parent
+    // todo: event data type safety would be nice...
+    const message = {
+      name: 'toggle',
+      width: opts.width,
+      height: opts.height,
+    }
+    receiverWindow.postMessage(message, '*')
+  }
+
   private createMessageFromApi(comment): IWidgetMessage {
     const isOwnMessage = comment.uid === mockUser.uid
     return {
-        author: isOwnMessage ? 'me' : 'them',
-        type: 'text',
-        data: {
-          text: comment.message,
-        },
-     }
+      author: isOwnMessage ? 'me' : 'them',
+      type: 'text',
+      data: {
+        text: comment.message,
+      },
+    }
   }
 
   private syncConversation(conversationId) {
-    const subscriber =  fw.conversations.paginateMessages(conversationId, feed => {
+    const subscriber = fw.conversations.paginateMessages(conversationId, feed => {
       const messageList: IWidgetMessage[] = []
       feed.forEach((comment, _id) => {
         const widgetMessage = this.createMessageFromApi(comment)
@@ -67,7 +94,7 @@ class App extends React.Component<{}, IState> {
     this.setState({ subscriber })
   }
 
-  private onMessageWasSent = (message) => {
+  private onMessageWasSent = message => {
     const messageText = message.data.text || message.data.code
 
     // create temp user
@@ -94,17 +121,17 @@ class App extends React.Component<{}, IState> {
 
   public render() {
     return (
-      <div className='App'>
-        <Launcher
-          agentProfile={{
-            teamName: 'react-live-chat',
-            imageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
-          }}
-          onMessageWasSent={this.onMessageWasSent}
-          messageList={this.state.messageList}
-          showEmoji
-        />
-      </div>
+      <Launcher
+        showEmoji
+        isOpen={this.state.isOpen}
+        agentProfile={{
+          teamName: 'react-live-chat',
+          imageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
+        }}
+        onMessageWasSent={this.onMessageWasSent}
+        messageList={this.state.messageList}
+        handleClick={this.handleLauncherClick}
+      />
     )
   }
 }
