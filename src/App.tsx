@@ -1,7 +1,9 @@
 import * as React from 'react'
 import { Launcher } from './widget'
 import fw from '@newsioaps/firebase-wrapper'
+import { Provider } from 'mobx-react'
 import { createNewConversation, addComment, mockParticipants, mockUser } from './firebase/conversations'
+import { RootStore } from './stores'
 
 type AuthorType = 'me' | 'them'
 type MessageType = 'text' | 'code'
@@ -121,17 +123,19 @@ class App extends React.Component<{}, IState> {
 
   public render() {
     return (
-      <Launcher
-        showEmoji
-        isOpen={this.state.isOpen}
-        agentProfile={{
-          teamName: 'react-live-chat',
-          imageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
-        }}
-        onMessageWasSent={this.onMessageWasSent}
-        messageList={this.state.messageList}
-        handleClick={this.handleLauncherClick}
-      />
+      <Provider {...new RootStore()}>
+        <Launcher
+          showEmoji
+          isOpen={this.state.isOpen}
+          agentProfile={{
+            teamName: 'react-live-chat',
+            imageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
+          }}
+          onMessageWasSent={this.onMessageWasSent}
+          messageList={this.state.messageList}
+          handleClick={this.handleLauncherClick}
+        />
+      </Provider>
     )
   }
 }
