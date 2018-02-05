@@ -8,7 +8,7 @@ type MessageType = 'text' | 'code'
 
 interface IWidgetMessage {
   author: AuthorType
-  type: MessageType,
+  type: MessageType
   data: {
     text: string
   }
@@ -21,7 +21,6 @@ interface IState {
 }
 
 class App extends React.Component<{}, IState> {
-
   constructor(props) {
     super(props)
     this.state = {
@@ -46,16 +45,16 @@ class App extends React.Component<{}, IState> {
   private createMessageFromApi(comment): IWidgetMessage {
     const isOwnMessage = comment.uid === mockUser.uid
     return {
-        author: isOwnMessage ? 'me' : 'them',
-        type: 'text',
-        data: {
-          text: comment.message,
-        },
-     }
+      author: isOwnMessage ? 'me' : 'them',
+      type: 'text',
+      data: {
+        text: comment.message,
+      },
+    }
   }
 
   private syncConversation(conversationId) {
-    const subscriber =  fw.conversations.paginateMessages(conversationId, feed => {
+    const subscriber = fw.conversations.paginateMessages(conversationId, feed => {
       const messageList: IWidgetMessage[] = []
       feed.forEach((comment, _id) => {
         const widgetMessage = this.createMessageFromApi(comment)
@@ -67,7 +66,7 @@ class App extends React.Component<{}, IState> {
     this.setState({ subscriber })
   }
 
-  private onMessageWasSent = (message) => {
+  private onMessageWasSent = message => {
     const messageText = message.data.text || message.data.code
 
     // create temp user
@@ -99,7 +98,6 @@ class App extends React.Component<{}, IState> {
           position: 'absolute',
           width: '100%',
           height: '100%',
-          overflow: 'hidden',
           zIndex: 2147483647,
         }}
       >

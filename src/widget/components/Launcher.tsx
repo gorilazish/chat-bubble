@@ -23,7 +23,6 @@ interface IState {
 }
 
 class Launcher extends Component<IProps, IState> {
-
   constructor(props) {
     super(props)
     this.state = {
@@ -44,19 +43,22 @@ class Launcher extends Component<IProps, IState> {
 
   public render() {
     const isOpen = this.props.hasOwnProperty('isOpen') ? this.props.isOpen : this.state.isOpen
-    const classList = [
-      'sc-launcher',
-      (isOpen ? 'opened' : ''),
-    ]
+    const classList = ['sc-launcher', isOpen ? 'opened' : '']
+
     return (
-      <div>
-        <div>
-        </div>
-        <div className={classList.join(' ')} onClick={this.handleClick.bind(this)}>
-          <MessageCount count={this.props.newMessagesCount} isOpen={isOpen} />
-          <img className={'sc-open-icon'} src={launcherIconActive} />
-          <img className={'sc-closed-icon'} src={launcherIcon} />
-        </div>
+      <div
+        style={{
+          position: 'absolute',
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          alignItems: 'flex-end',
+          padding: 16,
+        }}
+      >
+        <div />
         <ChatWindow
           messageList={this.props.messageList}
           onUserInputSubmit={this.props.onMessageWasSent}
@@ -65,19 +67,21 @@ class Launcher extends Component<IProps, IState> {
           onClose={this.handleClick.bind(this)}
           showEmoji={this.props.showEmoji}
         />
+        <div className={classList.join(' ')} onClick={this.handleClick.bind(this)}>
+          <MessageCount count={this.props.newMessagesCount} isOpen={isOpen} />
+          <img className={'sc-open-icon'} src={launcherIconActive} />
+          <img className={'sc-closed-icon'} src={launcherIcon} />
+        </div>
       </div>
     )
   }
 }
 
-const MessageCount = (props) => {
-  if (props.count === 0 || props.isOpen === true) { return null }
-  return (
-    <div className={'sc-new-messsages-count'}>
-      {props.count}
-    </div>
-  )
+const MessageCount = props => {
+  if (props.count === 0 || props.isOpen === true) {
+    return null
+  }
+  return <div className={'sc-new-messsages-count'}>{props.count}</div>
 }
-
 
 export default Launcher
