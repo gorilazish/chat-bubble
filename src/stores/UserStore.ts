@@ -8,14 +8,15 @@ export class UserStore {
   private rootStore: RootStore
   @observable private _receiver: User | null
   @observable private _guest: User | null
-  @observable public hasLoaded: boolean = false
+  @observable public _hasLoadedReceiver: boolean = false
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore
+    this.initGuest()
     this.syncReceiverProfile()
   }
 
-  public createGuest(): User {
+  private initGuest(): User {
     this._guest = new User({
       id: 'aQaTeLE1SBfEDKCJJErW94gGJvD2',
       displayName: 'Anonymous',
@@ -27,15 +28,23 @@ export class UserStore {
     return this._receiver!
   }
 
-  public get guest(): User|null {
+  public get guest(): User | null {
     return this._guest
+  }
+
+  public get hasLoadedReceiver(): boolean {
+    return !!this._hasLoadedReceiver
+  }
+
+  public get hasLoadedGuest(): boolean {
+    return !!this._guest
   }
 
   private syncReceiverProfile() {
     const uid = this.rootStore.widgetSettings.userId
     fw.auth.syncUserProfile(uid, user => {
       this._receiver = user ? new User(user) : null
-      this.hasLoaded = true
+      this._hasLoadedReceiver = true
     })
   }
 }

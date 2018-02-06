@@ -1,8 +1,9 @@
-import { runInAction, observable } from 'mobx'
-import { RootStore } from 'stores'
+import { runInAction, observable, autorun } from 'mobx'
 import fw from '@newsioaps/firebase-wrapper'
-import * as T from '@newsioaps/firebase-wrapper/types'
+import * as FWT from '@newsioaps/firebase-wrapper/types'
 import { Paginator } from '@newsioaps/firebase-wrapper/paginator'
+import { RootStore } from 'stores'
+import * as T from '../types'
 
 export interface ICreatePostOptions {
   participants: IParticipant[]
@@ -27,33 +28,29 @@ export class ConversationStore {
   // @ts-ignore
   private rootStore: RootStore
   // @ts-ignore
-  private subscriber: Paginator<T.IMessage>
-  private conversationId: string | null
-  @observable private messages: T.IMessage[] = []
+  private subscriber: Paginator<FWT.IMessage> | null
+  @observable private conversationId: string | null
+  @observable private messages: FWT.IMessage[] = []
 
-  constructor(rootStore: RootStore) {
+  constructor(rootStore: RootStore, persistedState: T.IPersistedState) {
     this.rootStore = rootStore
-  }
-
-  // getters
-
-  public getMessages(): T.IMessage[] {
-    return this.messages
-  }
-
-  // actions
-
-  private syncConversation(conversationId) {
-    this.subscriber = fw.conversations.paginateMessages(conversationId, messages => {
-      runInAction(() => {
-        let msgs: T.IMessage[] = []
-        messages.forEach(msg => msgs.unshift(msg))
-        this.messages = msgs
-      })
+    this.conversationId = persistedState ? persistedState.conversationId : null
+    
+    autorun(() => {
+      if (this.conversationId) {
+        this.syncConversation(this.conversationId)
+      } else {
+        if (this.subscriber) {
+          this.subscriber.stop()
+        }
+      }
     })
   }
 
-  // create temp user
+  public getMessages(): FWT.IMessage[] {
+    return this.messages
+  }
+
   public async sendMessage(text: string) {
     if (this.conversationId) {
       this._sendMessage(this.conversationId, text)
@@ -63,14 +60,25 @@ export class ConversationStore {
     try {
       const postId = await this.createNewConvoAndSendMessage(text)
       this.conversationId = postId
+      localStorage.setItem('BelloWidgetState', JSON.stringify({ conversationId: postId }))
       this.syncConversation(postId)
     } catch (err) {
       console.log(err)
     }
   }
 
+  private syncConversation(conversationId) {
+    // todo: implement pagination
+    this.subscriber = fw.conversations.paginateMessages(conversationId, messages => {
+      runInAction(() => {
+        let msgs: FWT.IMessage[] = []
+        messages.forEach(msg => msgs.unshift(msg))
+        this.messages = msgs
+      })
+    })
+  }
+
   private async createNewConvoAndSendMessage(text: string) {
-    this.rootStore.userStore.createGuest()
     const postId = await this.createNewConvo()
     await this._sendMessage(postId, text)
     return postId || null

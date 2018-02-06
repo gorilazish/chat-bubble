@@ -6,6 +6,10 @@ export interface IBelloWidgetSettings {
   userId: string
 }
 
+export type IPersistedState = {
+  conversationId: string
+} | null
+
 export interface IWidgetMessage {
   author: AuthorType
   type: MessageType

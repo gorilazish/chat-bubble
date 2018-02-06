@@ -39,7 +39,6 @@ class App extends React.Component<InjectedProps, IState> {
     }
   }
 
-
   private handleLauncherClick = () => {
     this.setState(state => {
       const width = !state.isOpen ? '400px' : '80px'
@@ -65,7 +64,6 @@ class App extends React.Component<InjectedProps, IState> {
   }
 
   private transformMessages = (messages: T.IMessage[]): IWidgetMessage[] => {
-    console.log(messages)
     return messages.map(this.transformMessage)
   }
 
@@ -89,11 +87,11 @@ class App extends React.Component<InjectedProps, IState> {
     const userStore = this.props.userStore!
     const convoStore = this.props.convoStore!
 
-    if (!userStore.hasLoaded) {
+    if (!userStore.hasLoadedReceiver || !userStore.hasLoadedGuest) {
       return null
     }
 
-    if (userStore.hasLoaded && !userStore.receiver) {
+    if (userStore.hasLoadedReceiver && !userStore.receiver) {
       console.error('Cannot load receiving user state. User does not exist')
       return null
     }
