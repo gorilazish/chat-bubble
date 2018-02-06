@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import ChatWindow from './ChatWindow'
 // import launcherIcon from './../assets/logo-no-bg.svg'
 // import launcherIconActive from './../assets/close-icon.png'
-import { IWidgetMessage, IAgentProfile } from 'types'
+import { IWidgetMessage } from 'types'
 
 const launcherIcon = require('./../assets/logo-no-bg.svg')
 const launcherIconActive = require('./../assets/close-icon.png')

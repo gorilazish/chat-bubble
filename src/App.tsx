@@ -1,12 +1,16 @@
 import * as React from 'react'
 import { Launcher } from './widget'
 import fw from '@newsioaps/firebase-wrapper'
-import { Provider } from 'mobx-react'
+import { observer, inject } from 'mobx-react'
 import { createNewConversation, addComment, mockParticipants, mockUser } from './firebase/conversations'
-import { RootStore } from './stores'
+import { UserStore, RootStore } from './stores'
 
 type AuthorType = 'me' | 'them'
 type MessageType = 'text' | 'code'
+
+interface InjectedProps {
+  userStore?: UserStore
+}
 
 interface IWidgetMessage {
   author: AuthorType
@@ -25,7 +29,11 @@ interface IState {
 
 const isDev = process.env.NODE_ENV === 'development'
 
-class App extends React.Component<{}, IState> {
+@inject((store: RootStore) => ({
+  userStore: store.userStore,
+}))
+@observer
+class App extends React.Component<InjectedProps, IState> {
   constructor(props) {
     super(props)
     this.state = {
@@ -122,16 +130,25 @@ class App extends React.Component<{}, IState> {
   }
 
   public render() {
+    const userStore = this.props.userStore!
+
+    if (!userStore.hasLoaded) {
+      return null
+    }
+
+    if (userStore.hasLoaded && !userStore.receiver) {
+      console.error('Cannot load receiving user state. User does not exist')
+      return null
+    }
+
     return (
-      <Provider {...new RootStore()}>
-        <Launcher
-          showEmoji
-          isOpen={this.state.isOpen}
-          onMessageWasSent={this.onMessageWasSent}
-          messageList={this.state.messageList}
-          handleClick={this.handleLauncherClick}
-        />
-      </Provider>
+      <Launcher
+        showEmoji
+        isOpen={this.state.isOpen}
+        onMessageWasSent={this.onMessageWasSent}
+        messageList={this.state.messageList}
+        handleClick={this.handleLauncherClick}
+      />
     )
   }
 }

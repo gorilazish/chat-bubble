@@ -1,11 +1,13 @@
 import fw from '@newsioaps/firebase-wrapper'
+import { observable } from 'mobx'
 import { RootStore } from './index'
 import { User } from '../models'
 
 export class UserStore {
   // @ts-ignore
   private rootStore: RootStore
-  public receiver: User | null
+  @observable public receiver: User | null
+  @observable public hasLoaded: boolean = false
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore
@@ -13,9 +15,10 @@ export class UserStore {
   }
 
   private syncUserProfile() {
-    const uid = '56e0312775317e0100db6f44'
+    const uid = this.rootStore.widgetSettings.userId
     fw.auth.syncUserProfile(uid, user => {
       this.receiver = user ? new User(user) : null
+      this.hasLoaded = true
     })
   }
 }
