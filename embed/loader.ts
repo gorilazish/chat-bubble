@@ -111,7 +111,10 @@ function createDomElements() {
 
   const frame = document.createElement('iframe')
   frame.id = FRAME_ID
-  frame.src = 'https://widget.belloforwork.com/index.html'
+  frame.src =
+    process.env.NODE_ENV === 'development'
+      ? '//localhost:3000/index.html'
+      : 'https://widget.belloforwork.com/index.html'
   frame.style.border = 'none'
   frame.style.display = 'block'
   frame.style.position = 'fixed'
@@ -145,7 +148,9 @@ function attachPostMessageHandlers() {
   }
 }
 
-if ((window as any).BelloWidgetSettings) {
+const settings = (window as any).BelloWidgetSettings
+
+if (settings) {
   const settings = (window as any).BelloWidgetSettings
 
   if (!settings.userId) {
