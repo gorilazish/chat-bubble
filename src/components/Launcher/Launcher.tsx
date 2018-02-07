@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import ChatWindow from '../ChatWindow'
 import launcherIcon from '../../assets/logo-no-bg.svg'
 import launcherIconActive from '../../assets/close-icon.png'
-import { IWidgetMessage, IAgentProfile } from 'types/types'
+import { IWidgetMessage } from 'types/types'
 
 import './Launcher.css'
 
@@ -12,7 +12,6 @@ interface IProps {
   showEmoji: boolean
   newMessagesCount?: number
   messageList: IWidgetMessage[]
-  agentProfile: IAgentProfile
   onMessageWasSent: (message: IWidgetMessage) => void
   handleClick?: (e: React.SyntheticEvent<HTMLInputElement>) => void
 }
@@ -62,7 +61,6 @@ class Launcher extends Component<IProps, IState> {
         <ChatWindow
           messageList={this.props.messageList}
           onUserInputSubmit={this.props.onMessageWasSent}
-          agentProfile={this.props.agentProfile}
           isOpen={isOpen}
           onClose={this.handleClick.bind(this)}
           showEmoji={this.props.showEmoji}

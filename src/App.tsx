@@ -1,12 +1,11 @@
 import * as React from 'react'
 import { Launcher } from './components'
-import fw from '@newsioaps/firebase-wrapper'
-import { Provider } from 'mobx-react'
-import { createNewConversation, addComment, mockParticipants, mockUser } from './firebase/conversations'
-import { RootStore } from './stores'
+import * as T from '@newsioaps/firebase-wrapper/types'
+import { observer, inject } from 'mobx-react'
+import { UserStore, RootStore, ConversationStore } from './stores'
 
 type AuthorType = 'me' | 'them'
-type MessageType = 'text' | 'code'
+type MessageType = 'text'
 
 interface IWidgetMessage {
   author: AuthorType
@@ -16,46 +15,33 @@ interface IWidgetMessage {
   }
 }
 
+interface InjectedProps {
+  userStore?: UserStore
+  convoStore?: ConversationStore
+}
+
 interface IState {
-  messageList: any
-  conversationId: string | null
-  subscriber: any
-  unreadCount: number
   isOpen: boolean
 }
 
 const isDev = process.env.NODE_ENV === 'development'
 
-class App extends React.Component<{}, IState> {
+@inject((store: RootStore) => ({
+  userStore: store.userStore,
+  convoStore: store.convoStore,
+}))
+@observer
+class App extends React.Component<InjectedProps, IState> {
   constructor(props) {
     super(props)
     this.state = {
-      messageList: [],
-      conversationId: null, // todo: get conversationId from localStorage/cookie
-      subscriber: null,
-      unreadCount: 0,
       isOpen: false,
     }
   }
 
-  public componentWillMount() {
-    if (this.state.conversationId) {
-      this.syncConversation(this.state.conversationId)
-    }
-  }
-
-  public componentWillUnmount() {
-    if (this.state.subscriber) {
-      this.state.subscriber.stop()
-    }
-  }
-
   private handleLauncherClick = () => {
-    const uid = mockUser.uid
-    if (this.state.conversationId) {
-      fw.feed.clearUnreadMessages(uid, this.state.conversationId)
-    }
-
+    this.props.convoStore!.clearUnreadMessages()
+    
     this.setState(state => {
       const width = !state.isOpen ? '400px' : '80px'
       const height = !state.isOpen ? '400px' : '80px'
@@ -79,80 +65,49 @@ class App extends React.Component<{}, IState> {
     receiverWindow.postMessage(message, '*')
   }
 
-  private createMessageFromApi(comment): IWidgetMessage {
-    const isOwnMessage = comment.uid === mockUser.uid
+  private transformMessages = (messages: T.IMessage[]): IWidgetMessage[] => {
+    return messages.map(this.transformMessage)
+  }
+
+  private transformMessage = (comment: T.IMessage): IWidgetMessage => {
+    const isOwnMessage = comment.uid === this.props.userStore!.guest!.id
     return {
       author: isOwnMessage ? 'me' : 'them',
       type: 'text',
       data: {
-        text: comment.message,
+        text: comment.message || '',
       },
     }
   }
 
-  private syncConversation(conversationId) {
-    this.syncUnreadCount(conversationId)
-    const subscriber = fw.conversations.paginateMessages(conversationId, feed => {
-      const messageList: IWidgetMessage[] = []
-      feed.forEach((comment, _id) => {
-        const widgetMessage = this.createMessageFromApi(comment)
-        messageList.unshift(widgetMessage)
-      })
-
-      this.setState({ messageList })
-    })
-    this.setState({ subscriber })
-  }
-
-  private syncUnreadCount(conversationId) {
-    const uid = mockUser.uid
-    fw.feed.syncUnreadMessages(uid, unreadCountByPostId => {
-      const unreadCount = unreadCountByPostId[conversationId] || 0
-      this.setState({ unreadCount })
-    })
-  }
-
-  private onMessageWasSent = message => {
+  private handleSendMessage = message => {
     const messageText = message.data.text || message.data.code
-
-    // create temp user
-    if (!this.state.conversationId) {
-      const postOpts = {
-        participants: mockParticipants,
-        title: 'Widget lead',
-      }
-
-      createNewConversation(postOpts, messageText)
-        .then(postId => {
-          this.setState({ conversationId: postId })
-          this.syncConversation(postId)
-        })
-        .catch(e => console.error(e))
-    } else {
-      addComment(this.state.conversationId, messageText)
-    }
-
-    this.setState({
-      messageList: [...this.state.messageList, message],
-    })
+    this.props.convoStore!.sendMessage(messageText)
   }
 
   public render() {
+    const userStore = this.props.userStore!
+    const convoStore = this.props.convoStore!
+
+    if (!userStore.hasLoadedReceiver || !userStore.hasLoadedGuest) {
+      return null
+    }
+
+    if (userStore.hasLoadedReceiver && !userStore.receiver) {
+      console.error('Cannot load receiving user state. User does not exist')
+      return null
+    }
+
+    console.log(convoStore.getUnreadCount())
     return (
-      <Provider {...new RootStore()}>
-        <Launcher
-          showEmoji
-          isOpen={this.state.isOpen}
-          agentProfile={{
-            teamName: 'react-live-chat',
-            imageUrl: 'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png',
-          }}
-          onMessageWasSent={this.onMessageWasSent}
-          newMessagesCount={this.state.unreadCount}
-          messageList={this.state.messageList}
-          handleClick={this.handleLauncherClick}
-        />
-      </Provider>
+      <Launcher
+        showEmoji
+        isOpen={this.state.isOpen}
+        newMessagesCount={convoStore.getUnreadCount()}
+        onMessageWasSent={this.handleSendMessage}
+        messageList={this.transformMessages(convoStore.getMessages())}
+        handleClick={this.handleLauncherClick}
+      />
     )
   }
 }

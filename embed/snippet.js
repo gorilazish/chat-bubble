@@ -1,7 +1,7 @@
 // This snippet needs to be embedded into users website
 
 ;(function() {
-  var BelloWidgetOptions = {
+  window.BelloWidgetOptions = {
     userId: 'martynas'
   }
  

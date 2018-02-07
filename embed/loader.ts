@@ -20,6 +20,7 @@
   }
 
   const FRAME_ID = 'bello-widget-frame'
+  const allowedOrigins = ['https://widget.belloforwork.com', 'https://bello-widget.firebaseapp.com']
 
   function handleToggleEvent(data: IToggleEvent) {
     const { width, height } = data
@@ -30,15 +31,25 @@
     }
   }
 
+  function handleRequestSettingsEvent(event: MessageEvent) {
+    event.source.postMessage(
+      {
+        name: 'receive-settings',
+        settings: (window as any).BelloWidgetSettings,
+      },
+      event.origin
+    )
+  }
+
   function postMessageHandler(event: MessageEvent) {
     const origin = event.origin
     const data: IEventData = event.data
 
-    const allowedOrigins = ['https://widget.belloforwork.com', 'https://bello-widget.firebaseapp.com']
-
     if (allowedOrigins.indexOf(origin) !== -1) {
-      if (data && data.name === 'toggle') {
+      if (data.name === 'toggle') {
         handleToggleEvent(data as IToggleEvent)
+      } else if (data.name === 'request-settings') {
+        handleRequestSettingsEvent(event)
       }
     }
   }
@@ -85,6 +96,20 @@
     }
   }
 
-  createDomElements()
-  attachPostMessageHandlers()
+  if ((window as any).BelloWidgetSettings) {
+    const settings = (window as any).BelloWidgetSettings
+
+    if (!settings) {
+      console.warn('Cannot find Bello Widget configuration')
+      return
+    }
+
+    if (!settings.userId) {
+      console.warn('BelloWidgetSettings is missing userId parameter')
+      return
+    }
+
+    createDomElements()
+    attachPostMessageHandlers()
+  }
 })()
