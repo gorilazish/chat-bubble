@@ -6,7 +6,7 @@ const paths = require('./paths')
 process.env.NODE_ENV = process.env.NODE_ENV || 'development'
 
 // load env variables from .env file into process.env
-require('dotenv').config({path: paths.dotenv})
+require('dotenv').config({ path: paths.dotenv })
 
 if (!process.env.RECEIVER_ID) {
   throw new Error('Add RECEIVER_ID env variable')
@@ -23,8 +23,6 @@ const config = {
     contentBase: paths.appBuild,
     port: 4000,
     noInfo: true,
-    open: true,
-    openPage: '/',
     watchContentBase: true,
   },
   module: {
