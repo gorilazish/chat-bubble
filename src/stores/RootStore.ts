@@ -1,5 +1,5 @@
 import { UserStore, ConversationStore } from './index'
-import * as T from '../types'
+import * as T from '../types/types'
 
 export class RootStore {
   public userStore: UserStore

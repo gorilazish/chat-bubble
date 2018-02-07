@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import Message from './Messages'
-import { IWidgetMessage } from 'types'
+import Message from '../Messages'
+import { IWidgetMessage } from 'types/types'
+
 
 interface IProps {
   messages: IWidgetMessage[]
