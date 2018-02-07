@@ -1,12 +1,7 @@
 ;(function() {
   interface IEventData {
     name: string
-  }
-
-  interface IToggleEvent extends IEventData {
-    name: 'toggle'
-    width: string
-    height: string
+    payload: any
   }
 
   function documentReady(cb) {
@@ -19,11 +14,12 @@
     }
   }
 
+  const EVENT_PREFIX = 'BelloWidgetMessage-'
   const FRAME_ID = 'bello-widget-frame'
   const allowedOrigins = ['https://widget.belloforwork.com', 'https://bello-widget.firebaseapp.com']
 
-  function handleToggleEvent(data: IToggleEvent) {
-    const { width, height } = data
+  function handleToggleEvent(payload) {
+    const { width, height } = payload
     const frame = document.getElementById(FRAME_ID)
     if (frame) {
       frame.style.height = height
@@ -31,25 +27,79 @@
     }
   }
 
-  function handleRequestSettingsEvent(event: MessageEvent) {
-    event.source.postMessage(
-      {
-        name: 'receive-settings',
-        settings: (window as any).BelloWidgetSettings,
-      },
-      event.origin
-    )
+  function handleRequestSettingsEvent() {
+    return (window as any).BelloWidgetSettings
+  }
+
+  function handlePersistEvent(payload) {
+    if (window.localStorage) {
+      localStorage.setItem(payload.key, payload.value)
+    } else {
+      // todo: use fallback
+    }
+  }
+
+  function handleStorageGet(payload) {
+    if (window.localStorage) {
+      return localStorage.getItem(payload.key)
+    } else {
+      // todo: use fallback
+    }
+  }
+
+  function handleStorageClear() {
+    if (window.localStorage) {
+      localStorage.clear()
+    } else {
+      // todo: use fallback
+    }
+  }
+
+  function sendResponse(event: MessageEvent, handler) {
+    const data: IEventData = event.data
+
+    const response: any = {
+      name: event.data.name,
+      payload: undefined,
+      error: false,
+    }
+
+    try {
+      response.payload = handler(data.payload)
+    } catch (err) {
+      response.error = true
+      response.payload = err.message
+    } finally {
+      return event.source.postMessage(response, event.origin)
+    }
   }
 
   function postMessageHandler(event: MessageEvent) {
     const origin = event.origin
     const data: IEventData = event.data
 
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      if (data.name === 'toggle') {
-        handleToggleEvent(data as IToggleEvent)
-      } else if (data.name === 'request-settings') {
-        handleRequestSettingsEvent(event)
+    // make sure we're handling our events
+    if (allowedOrigins.indexOf(origin) !== -1 && data.name) {
+      const name = data.name.replace(EVENT_PREFIX, '')
+      switch (name) {
+        case 'toggle': {
+          return sendResponse(event, handleToggleEvent)
+        }
+        case 'request-settings': {
+          return sendResponse(event, handleRequestSettingsEvent)
+        }
+        case 'storage-set': {
+          return sendResponse(event, handlePersistEvent)
+        }
+        case 'storage-get': {
+          return sendResponse(event, handleStorageGet)
+        }
+        case 'storage-clear': {
+          return sendResponse(event, handleStorageClear)
+        }
+        default: {
+          return sendResponse(event, () => new Error('Event handler does not exist'))
+        }
       }
     }
   }
@@ -99,11 +149,6 @@
   if ((window as any).BelloWidgetSettings) {
     const settings = (window as any).BelloWidgetSettings
 
-    if (!settings) {
-      console.warn('Cannot find Bello Widget configuration')
-      return
-    }
-
     if (!settings.userId) {
       console.warn('BelloWidgetSettings is missing userId parameter')
       return
@@ -111,5 +156,7 @@
 
     createDomElements()
     attachPostMessageHandlers()
+  } else {
+    console.warn('Cannot find Bello Widget configuration')
   }
 })()

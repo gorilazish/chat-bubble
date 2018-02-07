@@ -3,6 +3,7 @@ import { Launcher } from './components'
 import * as T from '@newsioaps/firebase-wrapper/types'
 import { observer, inject } from 'mobx-react'
 import { UserStore, RootStore, ConversationStore } from './stores'
+import poster from './lib/poster'
 
 type AuthorType = 'me' | 'them'
 type MessageType = 'text'
@@ -24,8 +25,6 @@ interface IState {
   isOpen: boolean
 }
 
-const isDev = process.env.NODE_ENV === 'development'
-
 @inject((store: RootStore) => ({
   userStore: store.userStore,
   convoStore: store.convoStore,
@@ -41,7 +40,7 @@ class App extends React.Component<InjectedProps, IState> {
 
   private handleLauncherClick = () => {
     this.props.convoStore!.clearUnreadMessages()
-    
+
     this.setState(state => {
       const width = !state.isOpen ? '400px' : '80px'
       const height = !state.isOpen ? '400px' : '80px'
@@ -55,14 +54,11 @@ class App extends React.Component<InjectedProps, IState> {
   }
 
   private sendLauncherTogglEvent = (opts: { width: string; height: string }) => {
-    const receiverWindow = isDev ? window : window.parent
     // todo: event data type safety would be nice...
-    const message = {
-      name: 'toggle',
+    poster.sendMessage('toggle', {
       width: opts.width,
       height: opts.height,
-    }
-    receiverWindow.postMessage(message, '*')
+    })
   }
 
   private transformMessages = (messages: T.IMessage[]): IWidgetMessage[] => {
@@ -98,7 +94,6 @@ class App extends React.Component<InjectedProps, IState> {
       return null
     }
 
-    console.log(convoStore.getUnreadCount())
     return (
       <Launcher
         showEmoji

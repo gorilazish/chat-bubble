@@ -4,39 +4,25 @@ import { Provider } from 'mobx-react'
 import { RootStore } from './stores'
 import App from './App'
 import { initFb } from './firebase/init'
+import persistance from './lib/persistance'
+import poster from './lib/poster'
 import * as T from './types/types'
 
-function getSettings(): Promise<{ settings: T.IBelloWidgetSettings; state: T.IPersistedState }> {
-  return new Promise((res, rej) => {
-    if (process.env.NODE_ENV === 'development') {
-      const settings = localStorage.getItem('BelloWidgetSettings')
-      const state = localStorage.getItem('BelloWidgetState')
-
-      const parsedSettings = settings ? JSON.parse(settings) : null
-      const parsedState = state ? JSON.parse(state) : null
-
-      if (!parsedSettings) {
-        throw new Error('Add mock BelloWidgetSettings to local storage when in dev mode')
-      }
-
-      res({ settings: parsedSettings, state: parsedState })
-    } else {
-      let settings: T.IBelloWidgetSettings
-      let state: T.IPersistedState
-
-      window.parent.postMessage({ name: 'request-settings' }, '*')
-      window.addEventListener('message', function(event) {
-        if (event.data.name === 'receive-settings') {
-          settings = event.data.settings
-          state = event.data.state
-        }
-      })
-
-      window.setTimeout(() => {
-        settings ? res({ settings, state }) : rej(new Error('Cannot load widget settings from parent window'))
-      }, 2000)
+async function getSettings(): Promise<{ settings: T.IBelloWidgetSettings; state: T.IPersistedState }> {
+  if (process.env.NODE_ENV === 'development') {
+    const settings = (await persistance.getItem('BelloWidgetSettings')) as T.IBelloWidgetSettings
+    const state = await persistance.getItem('BelloWidgetState')
+    if (!settings) {
+      throw new Error('Add mock BelloWidgetSettings to local storage when in dev mode')
     }
-  })
+    return { settings, state }
+  } else {
+    const [settings, state] = await Promise.all([
+      poster.sendMessage('request-settings'),
+      persistance.getItem('BelloWidgetState'),
+    ])
+    return { settings, state }
+  }
 }
 
 function render(element: HTMLElement, widgetSettings: T.IBelloWidgetSettings, state: T.IPersistedState) {
@@ -51,7 +37,9 @@ function render(element: HTMLElement, widgetSettings: T.IBelloWidgetSettings, st
   ReactDOM.render(app, element)
 }
 
-getSettings().then(({ settings, state }) => {
-  initFb()
-  render(document.getElementById('root')!, settings, state)
-})
+getSettings()
+  .then(({ settings, state }) => {
+    initFb()
+    render(document.getElementById('root')!, settings, state)
+  })
+  .catch(err => console.error(err))
