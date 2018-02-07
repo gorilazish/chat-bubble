@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
 import { observer, inject } from 'mobx-react'
 import { RootStore, UserStore } from '../../stores'
-const closeIcon = require('./../assets/close-icon.png')
+import closeIcon from '../../assets/close-icon.png'
+
+import './Header.css'
+
 
 interface OwnProps {
   onClose: () => void

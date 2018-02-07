@@ -6,7 +6,7 @@ import App from './App'
 import { initFb } from './firebase/init'
 import persistance from './lib/persistance'
 import poster from './lib/poster'
-import * as T from './types'
+import * as T from './types/types'
 
 async function getSettings(): Promise<{ settings: T.IBelloWidgetSettings; state: T.IPersistedState }> {
   if (process.env.NODE_ENV === 'development') {
