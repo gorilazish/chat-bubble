@@ -3,6 +3,7 @@ import fw from '@newsioaps/firebase-wrapper'
 import * as FWT from '@newsioaps/firebase-wrapper/types'
 import { Paginator } from '@newsioaps/firebase-wrapper/paginator'
 import { RootStore } from 'stores'
+import persistance from '../lib/persistance'
 import * as T from '../types'
 
 export interface ICreatePostOptions {
@@ -35,7 +36,7 @@ export class ConversationStore {
   constructor(rootStore: RootStore, persistedState: T.IPersistedState) {
     this.rootStore = rootStore
     this.conversationId = persistedState ? persistedState.conversationId : null
-    
+
     autorun(() => {
       if (this.conversationId) {
         this.syncConversation(this.conversationId)
@@ -60,7 +61,7 @@ export class ConversationStore {
     try {
       const postId = await this.createNewConvoAndSendMessage(text)
       this.conversationId = postId
-      localStorage.setItem('BelloWidgetState', JSON.stringify({ conversationId: postId }))
+      persistance.setItem('BelloWidgetState', { conversationId: postId })
       this.syncConversation(postId)
     } catch (err) {
       console.log(err)
