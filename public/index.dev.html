@@ -10,10 +10,10 @@
   <script>
     window.addEventListener('message', event => {
       const data = event.data
-      if (data.name === 'toggle') {
+      if (data.name === 'BelloWidgetMessage-toggle') {
         const root = document.getElementById('root')
-        root.style.width = data.width
-        root.style.height = data.height
+        root.style.width = data.payload.width
+        root.style.height = data.payload.height
       }
     })
   </script>
