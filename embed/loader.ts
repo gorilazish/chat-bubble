@@ -4,12 +4,6 @@
     payload: any
   }
 
-  interface IToggleEvent extends IEventData {
-    name: 'toggle'
-    width: string
-    height: string
-  }
-
   function documentReady(cb) {
     if (document.body) {
       cb()
@@ -24,8 +18,8 @@
   const FRAME_ID = 'bello-widget-frame'
   const allowedOrigins = ['https://widget.belloforwork.com', 'https://bello-widget.firebaseapp.com']
 
-  function handleToggleEvent(data: IToggleEvent) {
-    const { width, height } = data
+  function handleToggleEvent(payload) {
+    const { width, height } = payload
     const frame = document.getElementById(FRAME_ID)
     if (frame) {
       frame.style.height = height
@@ -33,52 +27,45 @@
     }
   }
 
-  function handleRequestSettingsEvent(event: MessageEvent) {
-    event.source.postMessage(
-      {
-        name: event.data.name,
-        payload: {
-          settings: (window as any).BelloWidgetSettings,
-        },
-      },
-      event.origin
-    )
+  function handleRequestSettingsEvent() {
+    return (window as any).BelloWidgetSettings
   }
 
-  function handlePersistEvent(event: MessageEvent) {
+  function handlePersistEvent(payload) {
+    if (window.localStorage) {
+      localStorage.setItem(payload.key, payload.value)
+    } else {
+      // todo: use fallback
+    }
+  }
+
+  function handleStorageGet(payload) {
+    if (window.localStorage) {
+      return localStorage.getItem(payload.key)
+    } else {
+      // todo: use fallback
+    }
+  }
+
+  function handleStorageClear() {
+    if (window.localStorage) {
+      localStorage.clear()
+    } else {
+      // todo: use fallback
+    }
+  }
+
+  function sendResponse(event: MessageEvent, handler) {
     const data: IEventData = event.data
+
     const response: any = {
       name: event.data.name,
+      payload: undefined,
       error: false,
     }
 
     try {
-      if (window.localStorage) {
-        localStorage.setItem(data.payload.key, data.payload.value)
-      } else {
-        // todo: use fallback
-      }
-    } catch (err) {
-      response.error = true
-      response.payload = err.message
-    } finally {
-      return event.source.postMessage(response, event.origin)
-    }
-  }
-
-  function handleStorageGet(event: MessageEvent) {
-    const data: IEventData = event.data
-    const response: any = {
-      name: event.data.name,
-      error: false,
-    }
-
-    try {
-      if (window.localStorage) {
-        response.payload = localStorage.getItem(data.payload.key)
-      } else {
-        // todo: use fallback
-      }
+      response.payload = handler(data.payload)
     } catch (err) {
       response.error = true
       response.payload = err.message
@@ -96,28 +83,22 @@
       const name = data.name.replace(EVENT_PREFIX, '')
       switch (name) {
         case 'toggle': {
-          return handleToggleEvent(data as IToggleEvent)
+          return sendResponse(event, handleToggleEvent)
         }
         case 'request-settings': {
-          return handleRequestSettingsEvent(event)
+          return sendResponse(event, handleRequestSettingsEvent)
         }
         case 'storage-set': {
-          return handlePersistEvent(event)
+          return sendResponse(event, handlePersistEvent)
         }
         case 'storage-get': {
-          return handleStorageGet(event)
+          return sendResponse(event, handleStorageGet)
         }
         case 'storage-clear': {
+          return sendResponse(event, handleStorageClear)
         }
         default: {
-          event.source.postMessage(
-            {
-              name: event.data.name,
-              payload: 'Event handler does not exist',
-              error: true,
-            },
-            event.origin
-          )
+          return sendResponse(event, () => new Error('Event handler does not exist'))
         }
       }
     }

@@ -17,11 +17,11 @@ async function getSettings(): Promise<{ settings: T.IBelloWidgetSettings; state:
     }
     return { settings, state }
   } else {
-    const payloads = await Promise.all([
+    const [settings, state] = await Promise.all([
       poster.sendMessage('request-settings'),
       persistance.getItem('BelloWidgetState'),
     ])
-    return { settings: payloads[0].settings, state: payloads[1] }
+    return { settings, state }
   }
 }
 

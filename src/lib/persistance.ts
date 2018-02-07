@@ -6,11 +6,11 @@ const isDev = process.env.NODE_ENV === 'development'
 // todo: add fallback to cookies or use some storage lib
 const persistance = {
   async setItem(key: string, value: any): Promise<void> {
-    const strigified = JSON.stringify(value)
+    const stringified = JSON.stringify(value)
     if (isDev) {
-      localStorage.setItem(key, strigified)
+      localStorage.setItem(key, stringified)
     } else {
-      return poster.sendMessage('storage-set', { key, value: strigified })
+      return poster.sendMessage('storage-set', { key, value: stringified })
     }
   },
 

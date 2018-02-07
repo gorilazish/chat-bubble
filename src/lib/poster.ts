@@ -9,6 +9,7 @@ interface IPostMessage {
   payload: any
 }
 
+const receiverWindow = process.env.NODE_ENV === 'development' ? window : window.parent
 const prefix = 'BelloWidgetMessage-'
 
 const poster = {
@@ -21,7 +22,7 @@ const poster = {
       payload,
     }
 
-    window.parent.postMessage(message, '*')
+    receiverWindow.postMessage(message, '*')
 
     return new Promise((res, rej) => {
       const timer = window.setInterval(() => {
