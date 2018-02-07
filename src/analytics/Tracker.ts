@@ -47,6 +47,14 @@ function analyticsSendMessage(conversationId, commentId) {
  * FUNCTIONS
  */
 
+const context = {
+    app: {
+        name: 'Bello Widget',
+        version: '0.0.1', // todo: get version
+        build: '1', // todo: get build
+    }
+}
+
 function getClient() {
     return (window as any).analytics
 }
@@ -54,7 +62,11 @@ function getClient() {
 function identify(uid, traits) {
     const client = getClient()
     if (uid) {
-        client.identify(uid, traits)
+        client.identify({
+            context,
+            userId: uid,
+            traits
+        })
     }
 }
 
