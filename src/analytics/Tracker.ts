@@ -44,7 +44,7 @@ function analyticsSendMessage(conversationId, commentId) {
 }
 
 /**
- * FUNCTIONS
+ * Segment functions
  */
 
 const context = {
