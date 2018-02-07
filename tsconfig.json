@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "sourceMap": true,          // allow sourcemap support
-    "strictNullChecks": true,   // enable strict null checks as a best practice
-    "noImplicitAny": false,     // maybe we could enable this later
-    "module": "es6",            // specifiy module code generation
-    "jsx": "react",             // use typescript to transpile jsx to js
-    "target": "es5",            // specify ECMAScript target version
+    "experimentalDecorators": true,
+    "sourceMap": true, // allow sourcemap support
+    "strictNullChecks": true, // enable strict null checks as a best practice
+    "noImplicitAny": false, // maybe we could enable this later
+    "module": "es6", // specifiy module code generation
+    "jsx": "react", // use typescript to transpile jsx to js
+    "target": "es5", // specify ECMAScript target version
     "allowJs": false,
     "moduleResolution": "node",
     "baseUrl": "./src",
@@ -18,7 +19,5 @@
     "noImplicitThis": true,
     "suppressImplicitAnyIndexErrors": true
   },
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules", "embed"]
 }

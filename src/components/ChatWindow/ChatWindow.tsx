@@ -6,7 +6,6 @@ import { IWidgetMessage, IAgentProfile } from '../../types/types'
 
 import './ChatWindow.css'
 
-
 interface IProps {
   isOpen?: boolean
   showEmoji: boolean
@@ -21,39 +20,33 @@ interface IState {
 }
 
 class ChatWindow extends Component<IProps, IState> {
-    constructor(props) {
-      super(props)
-    }
+  constructor(props) {
+    super(props)
+  }
 
-    private onUserInputSubmit = (message) => {
-      this.props.onUserInputSubmit(message)
-    }
+  private onUserInputSubmit = message => {
+    this.props.onUserInputSubmit(message)
+  }
 
-    public onMessageReceived = (message) => {
-      this.setState({ messages: [...this.state.messages, message] })
-    }
+  public onMessageReceived = message => {
+    this.setState({ messages: [...this.state.messages, message] })
+  }
 
-    public render() {
-      const messageList = this.props.messageList || []
-      const classList = [
-        'sc-chat-window',
-        (this.props.isOpen ? 'opened' : 'closed'),
-      ]
-      return (
-        <div className={classList.join(' ')}>
-          <Header
-            teamName={this.props.agentProfile.teamName}
-            imageUrl={this.props.agentProfile.imageUrl}
-            onClose={this.props.onClose}
-          />
-          <MessageList
-            messages={messageList}
-          />
-          <UserInput showEmoji={this.props.showEmoji} onSubmit={this.onUserInputSubmit}/>
-        </div>
-      )
-    }
+  public render() {
+    const messageList = this.props.messageList || []
+    const classList = ['sc-chat-window', this.props.isOpen ? 'opened' : 'closed']
+    return (
+      <div className={classList.join(' ')}>
+        <Header
+          teamName={this.props.agentProfile.teamName}
+          imageUrl={this.props.agentProfile.imageUrl}
+          onClose={this.props.onClose}
+        />
+        <MessageList messages={messageList} />
+        <UserInput showEmoji={this.props.showEmoji} onSubmit={this.onUserInputSubmit} />
+      </div>
+    )
+  }
 }
-
 
 export default ChatWindow
