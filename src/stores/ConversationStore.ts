@@ -80,8 +80,8 @@ export class ConversationStore {
 
   public clearUnreadMessages() {
     const guestId = this.rootStore.userStore.guest!.id
-    if (guestId) {
-      fw.feed.clearUnreadMessages(guestId, this.conversationId!)
+    if (guestId && this.conversationId) {
+      fw.feed.clearUnreadMessages(guestId, this.conversationId)
     }
   }
 
