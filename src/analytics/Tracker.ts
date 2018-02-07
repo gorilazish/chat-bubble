@@ -34,7 +34,7 @@ function analyticsStartConvo(conversationId, firstCommentId) {
         individualRecipients: 1,
         // inviteeRecipients: 1, todo: not sure if this should be counted as invitee
         subjectLine: 'Widget Contact Request',
-      }
+    }
 
     track(START_CONVERSATION, trackerOptions)
 }
@@ -50,8 +50,7 @@ function analyticsSendMessage(conversationId, commentId) {
 const context = {
     app: {
         name: 'Bello Widget',
-        version: '0.0.1', // todo: get version
-        build: '1', // todo: get build
+        version: process.env.VERSION,
     }
 }
 
