@@ -29,7 +29,7 @@ export class ConversationStore {
   private rootStore: RootStore
   // @ts-ignore
   private subscriber: Paginator<FWT.IMessage> | null
-  private unreadCountSubscriber: () => void | null
+  private unreadCountSubscriber: (() => void) | null
   @observable private conversationId: string | null
   @observable private messages: FWT.IMessage[] = []
   @observable private unreadCount: number
@@ -133,6 +133,8 @@ export class ConversationStore {
 
   private stopSync() {
     this.subscriber!.stop()
-    this.unreadCountSubscriber()
+    this.unreadCountSubscriber!()
+    this.subscriber = null
+    this.unreadCountSubscriber = null
   }
 }
