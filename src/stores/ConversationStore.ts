@@ -29,6 +29,7 @@ export class ConversationStore {
   private rootStore: RootStore
   // @ts-ignore
   private subscriber: Paginator<FWT.IMessage> | null
+  private unreadCountSubscriber: () => void | null
   @observable private conversationId: string | null
   @observable private messages: FWT.IMessage[] = []
   @observable private unreadCount: number
@@ -44,7 +45,7 @@ export class ConversationStore {
         this.syncUnreadCount(this.conversationId)
       } else {
         if (this.subscriber) {
-          this.subscriber.stop()
+          this.stopSync()
         }
       }
     })
@@ -76,8 +77,8 @@ export class ConversationStore {
 
   public clearUnreadMessages() {
     const guestId = this.rootStore.userStore.guest!.id
-    if (guestId && this.conversationId) {
-      fw.feed.clearUnreadMessages(guestId, this.conversationId)
+    if (guestId) {
+      fw.feed.clearUnreadMessages(guestId, this.conversationId!)
     }
   }
 
@@ -123,8 +124,15 @@ export class ConversationStore {
 
   private syncUnreadCount(conversationId) {
     const guestId = this.rootStore.userStore.guest!.id
-    fw.feed.syncUnreadMessages(guestId, unreadCountByPostId => {
-      this.unreadCount = unreadCountByPostId[conversationId] || 0
+    this.unreadCountSubscriber = fw.feed.syncUnreadMessages(guestId, unreadCountByPostId => {
+      runInAction(() => {
+        this.unreadCount = unreadCountByPostId[conversationId] || 0
+      })
     })
+  }
+
+  private stopSync() {
+    this.subscriber!.stop()
+    this.unreadCountSubscriber()
   }
 }
