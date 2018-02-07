@@ -16,6 +16,7 @@ export class UserStore {
     this.syncReceiverProfile()
   }
 
+  // todo: identify
   private initGuest(): User {
     this._guest = new User({
       id: 'aQaTeLE1SBfEDKCJJErW94gGJvD2',

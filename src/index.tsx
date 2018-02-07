@@ -4,6 +4,7 @@ import { Provider } from 'mobx-react'
 import { RootStore } from './stores'
 import App from './App'
 import { initFb } from './firebase/init'
+import loadSegment from './analytics/loadSegment'
 import * as T from './types'
 
 function getSettings(): Promise<{ settings: T.IBelloWidgetSettings; state: T.IPersistedState }> {
@@ -53,5 +54,6 @@ function render(element: HTMLElement, widgetSettings: T.IBelloWidgetSettings, st
 
 getSettings().then(({ settings, state }) => {
   initFb()
+  loadSegment()
   render(document.getElementById('root')!, settings, state)
 })
