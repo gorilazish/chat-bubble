@@ -3,7 +3,7 @@ import fw from '@newsioaps/firebase-wrapper'
 import * as FWT from '@newsioaps/firebase-wrapper/types'
 import { Paginator } from '@newsioaps/firebase-wrapper/paginator'
 import { RootStore } from 'stores'
-import * as T from '../types'
+import * as T from '../types/types'
 
 export interface ICreatePostOptions {
   participants: IParticipant[]
@@ -29,19 +29,23 @@ export class ConversationStore {
   private rootStore: RootStore
   // @ts-ignore
   private subscriber: Paginator<FWT.IMessage> | null
+  private unreadCountSubscriber: (() => void) | null
   @observable private conversationId: string | null
   @observable private messages: FWT.IMessage[] = []
+  @observable private unreadCount: number
 
   constructor(rootStore: RootStore, persistedState: T.IPersistedState) {
     this.rootStore = rootStore
     this.conversationId = persistedState ? persistedState.conversationId : null
+    this.unreadCount = 0
     
     autorun(() => {
       if (this.conversationId) {
         this.syncConversation(this.conversationId)
+        this.syncUnreadCount(this.conversationId)
       } else {
         if (this.subscriber) {
-          this.subscriber.stop()
+          this.stopSync()
         }
       }
     })
@@ -49,6 +53,10 @@ export class ConversationStore {
 
   public getMessages(): FWT.IMessage[] {
     return this.messages
+  }
+
+  public getUnreadCount(): number {
+    return this.unreadCount
   }
 
   public async sendMessage(text: string) {
@@ -64,6 +72,13 @@ export class ConversationStore {
       this.syncConversation(postId)
     } catch (err) {
       console.log(err)
+    }
+  }
+
+  public clearUnreadMessages() {
+    const guestId = this.rootStore.userStore.guest!.id
+    if (guestId) {
+      fw.feed.clearUnreadMessages(guestId, this.conversationId!)
     }
   }
 
@@ -105,5 +120,21 @@ export class ConversationStore {
     } catch (e) {
       return console.error(e)
     }
+  }
+
+  private syncUnreadCount(conversationId) {
+    const guestId = this.rootStore.userStore.guest!.id
+    this.unreadCountSubscriber = fw.feed.syncUnreadMessages(guestId, unreadCountByPostId => {
+      runInAction(() => {
+        this.unreadCount = unreadCountByPostId[conversationId] || 0
+      })
+    })
+  }
+
+  private stopSync() {
+    this.subscriber!.stop()
+    this.unreadCountSubscriber!()
+    this.subscriber = null
+    this.unreadCountSubscriber = null
   }
 }

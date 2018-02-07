@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
-import MessageList from './MessageList'
-import UserInput from './UserInput'
-import Header from './Header'
-import { IWidgetMessage } from '../../types'
+import MessageList from '../MessageList'
+import UserInput from '../UserInput'
+import Header from '../Header'
+import { IWidgetMessage } from '../../types/types'
+
+import './ChatWindow.css'
 
 interface IProps {
   isOpen?: boolean

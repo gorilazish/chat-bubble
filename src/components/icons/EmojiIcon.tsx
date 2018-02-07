@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import EmojiPicker from './../emoji-picker/EmojiPicker'
+import EmojiPicker from '../EmojiPicker'
 
 
 interface IProps {

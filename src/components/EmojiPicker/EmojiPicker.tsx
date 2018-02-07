@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import EmojiConvertor from 'emoji-js'
 import emojiData from './emojiData'
 
+import './EmojiPicker.css'
+
+
 interface IProps extends React.HTMLAttributes<HTMLDivElement> {
   onEmojiPicked: (emoji: string) => void
 }

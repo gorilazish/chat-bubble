@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import SendIcon from './icons/SendIcon'
-import EmojiIcon from './icons/EmojiIcon'
+import { EmojiIcon, SendIcon } from '../icons'
+
+import './UserInput.css'
 
 
 interface IProps extends React.HTMLAttributes<HTMLDivElement> {

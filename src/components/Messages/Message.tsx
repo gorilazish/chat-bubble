@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import TextMessage from './TextMessage'
 import EmojiMessage from './EmojiMessage'
-import { IWidgetMessage } from '../../../types'
-// import chatIconUrl from './../../assets/chat-icon.svg'
+import { IWidgetMessage } from '../../types/types'
+import chatIconUrl from './../../assets/chat-icon.svg'
 
-const chatIconUrl = require('./../../assets/chat-icon.svg')
+import './Message.css'
+
 
 interface IProps {
   message: IWidgetMessage

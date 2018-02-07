@@ -4,7 +4,7 @@ import { Provider } from 'mobx-react'
 import { RootStore } from './stores'
 import App from './App'
 import { initFb } from './firebase/init'
-import * as T from './types'
+import * as T from './types/types'
 
 function getSettings(): Promise<{ settings: T.IBelloWidgetSettings; state: T.IPersistedState }> {
   return new Promise((res, rej) => {

@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
-import ChatWindow from './ChatWindow'
-// import launcherIcon from './../assets/logo-no-bg.svg'
-// import launcherIconActive from './../assets/close-icon.png'
-import { IWidgetMessage } from 'types'
+import ChatWindow from '../ChatWindow'
+import launcherIcon from '../../assets/logo-no-bg.svg'
+import launcherIconActive from '../../assets/close-icon.png'
+import { IWidgetMessage } from 'types/types'
 
-const launcherIcon = require('./../assets/logo-no-bg.svg')
-const launcherIconActive = require('./../assets/close-icon.png')
+import './Launcher.css'
+
 
 interface IProps {
   isOpen?: boolean
@@ -13,7 +13,7 @@ interface IProps {
   newMessagesCount?: number
   messageList: IWidgetMessage[]
   onMessageWasSent: (message: IWidgetMessage) => void
-  handleClick?: () => void
+  handleClick?: (e: React.SyntheticEvent<HTMLInputElement>) => void
 }
 
 interface IState {
@@ -30,13 +30,13 @@ class Launcher extends Component<IProps, IState> {
     }
   }
 
-  private handleClick = () => {
+  private handleClick = (e) => {
+    this.setState({
+      isOpen: !this.state.isOpen,
+    })
+
     if (this.props.handleClick !== undefined) {
-      this.props.handleClick()
-    } else {
-      this.setState({
-        isOpen: !this.state.isOpen,
-      })
+      this.props.handleClick(e)
     }
   }
 

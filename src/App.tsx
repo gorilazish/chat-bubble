@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Launcher } from './widget'
+import { Launcher } from './components'
 import * as T from '@newsioaps/firebase-wrapper/types'
 import { observer, inject } from 'mobx-react'
 import { UserStore, RootStore, ConversationStore } from './stores'
@@ -40,6 +40,8 @@ class App extends React.Component<InjectedProps, IState> {
   }
 
   private handleLauncherClick = () => {
+    this.props.convoStore!.clearUnreadMessages()
+    
     this.setState(state => {
       const width = !state.isOpen ? '400px' : '80px'
       const height = !state.isOpen ? '400px' : '80px'
@@ -96,10 +98,12 @@ class App extends React.Component<InjectedProps, IState> {
       return null
     }
 
+    console.log(convoStore.getUnreadCount())
     return (
       <Launcher
         showEmoji
         isOpen={this.state.isOpen}
+        newMessagesCount={convoStore.getUnreadCount()}
         onMessageWasSent={this.handleSendMessage}
         messageList={this.transformMessages(convoStore.getMessages())}
         handleClick={this.handleLauncherClick}
