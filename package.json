@@ -47,7 +47,7 @@
     "clean": "rm -rf build",
     "build": "npm run clean && npm run build:widget && npm run build:loader",
     "build:widget": "node scripts/build.js",
-    "build:loader": "tsc --target ES3 embed/loader.ts && mv embed/loader.js build/widget-loader.js",
+    "build:loader": "webpack --config config/webpack.config.loader.js",
     "test": "node scripts/test.js --env=jsdom",
     "deploy": "npm run build && firebase deploy --only hosting"
   },
