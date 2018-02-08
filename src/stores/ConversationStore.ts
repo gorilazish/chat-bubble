@@ -5,6 +5,9 @@ import { Paginator } from '@newsioaps/firebase-wrapper/paginator'
 import { RootStore } from 'stores'
 import persistance from '../lib/persistance'
 import * as T from '../types/types'
+import Api from '../api'
+
+const defaultMessageText = 'Hey, how can I help you?' // todo: not sure where to put it. Could be also taken from config?
 
 export interface ICreatePostOptions {
   participants: IParticipant[]
@@ -39,6 +42,11 @@ export class ConversationStore {
     this.rootStore = rootStore
     this.conversationId = persistedState ? persistedState.conversationId : null
     this.unreadCount = 0
+    this.messages = [{
+      message: defaultMessageText,
+      uid: 'fakeId',
+      timestamp: Date.now(),
+    }]
     
     autorun(() => {
       if (this.conversationId) {
@@ -66,8 +74,20 @@ export class ConversationStore {
       return
     }
 
+    const addOptimisticMessage = (text: string) => {
+      const optimisticMessage = {
+        message: text,
+        uid: this.rootStore.userStore.guest!.id,
+        timestamp: Date.now(),
+      }
+
+      this.messages.push(optimisticMessage)      
+    }
+
+    // new conversation
     try {
-      const postId = await this.createNewConvoAndSendMessage(text)
+      addOptimisticMessage(text)
+      const postId = await this.createNewConvo(text)
       this.conversationId = postId
       persistance.setItem('BelloWidgetState', { conversationId: postId })
       this.syncConversation(postId)
@@ -78,8 +98,8 @@ export class ConversationStore {
 
   public clearUnreadMessages() {
     const guestId = this.rootStore.userStore.guest!.id
-    if (guestId) {
-      fw.feed.clearUnreadMessages(guestId, this.conversationId!)
+    if (guestId && this.conversationId) {
+      fw.feed.clearUnreadMessages(guestId, this.conversationId)
     }
   }
 
@@ -94,23 +114,20 @@ export class ConversationStore {
     })
   }
 
-  private async createNewConvoAndSendMessage(text: string) {
-    const postId = await this.createNewConvo()
-    await this._sendMessage(postId, text)
-    return postId || null
-  }
-
-  private createNewConvo(): Promise<string> {
-    const guest = this.rootStore.userStore.guest!
-    const receiver = this.rootStore.userStore.receiver
-    const postObject: ICreatePostOptions = {
-      participants: [{ id: receiver.id, type: 'user' }],
-      title: 'Widget lead',
+  private createNewConvo(text: string): Promise<string> {
+    const guestId = this.rootStore.userStore.guest!.id
+    const receiverId = this.rootStore.userStore.receiver.id
+    const postObject: T.ICreateConversationBody = {
+      receiverId,
+      senderId: guestId,
+      message: text,
+      defaultMessage: defaultMessageText,
     }
-    return fw.posts.addPost(guest.id, postObject)
+    
+    return Api.conversations.createWidgetConversation(postObject)
   }
 
-  private _sendMessage(postId, text: string) {
+  private _sendMessage(postId: string, text: string) {
     const commentObject: ISendMessageOption = {
       uid: this.rootStore.userStore.guest!.id,
       postId,
@@ -123,7 +140,7 @@ export class ConversationStore {
     }
   }
 
-  private syncUnreadCount(conversationId) {
+  private syncUnreadCount(conversationId: string) {
     const guestId = this.rootStore.userStore.guest!.id
     this.unreadCountSubscriber = fw.feed.syncUnreadMessages(guestId, unreadCountByPostId => {
       runInAction(() => {

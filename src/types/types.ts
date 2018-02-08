@@ -21,3 +21,10 @@ export interface IState {
   conversationId: string | null
   subscriber: any
 }
+
+export interface ICreateConversationBody {
+  receiverId: string
+  senderId: string
+  message: string
+  defaultMessage: string
+}

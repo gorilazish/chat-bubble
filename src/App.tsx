@@ -4,17 +4,7 @@ import * as T from '@newsioaps/firebase-wrapper/types'
 import { observer, inject } from 'mobx-react'
 import { UserStore, RootStore, ConversationStore } from './stores'
 import poster from './lib/poster'
-
-type AuthorType = 'me' | 'them'
-type MessageType = 'text'
-
-interface IWidgetMessage {
-  author: AuthorType
-  type: MessageType
-  data: {
-    text: string
-  }
-}
+import { IWidgetMessage } from './types/types'
 
 interface InjectedProps {
   userStore?: UserStore
@@ -77,7 +67,7 @@ class App extends React.Component<InjectedProps, IState> {
   }
 
   private handleSendMessage = message => {
-    const messageText = message.data.text || message.data.code
+    const messageText = message.data.text || message.data.emoji
     this.props.convoStore!.sendMessage(messageText)
   }
 

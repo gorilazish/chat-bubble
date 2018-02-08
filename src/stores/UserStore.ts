@@ -18,7 +18,7 @@ export class UserStore {
 
   private initGuest(): User {
     this._guest = new User({
-      id: 'aQaTeLE1SBfEDKCJJErW94gGJvD2',
+      id: 'AP0DJiYQjTUIXTbDkNpFFxp3Krz2',
       displayName: 'Anonymous',
     })
     return this._guest
