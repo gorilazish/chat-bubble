@@ -3,8 +3,9 @@ import fw from '@newsioaps/firebase-wrapper'
 import * as FWT from '@newsioaps/firebase-wrapper/types'
 import { Paginator } from '@newsioaps/firebase-wrapper/paginator'
 import { RootStore } from 'stores'
-import persistance from '../lib/persistance'
 import * as T from '../types/types'
+import Tracker from '../analytics/Tracker'
+import persistance from '../lib/persistance'
 
 export interface ICreatePostOptions {
   participants: IParticipant[]
@@ -62,7 +63,8 @@ export class ConversationStore {
 
   public async sendMessage(text: string) {
     if (this.conversationId) {
-      this._sendMessage(this.conversationId, text)
+      const messageId = await this._sendMessage(this.conversationId, text)
+      Tracker.analyticsSendMessage(this.conversationId, messageId)
       return
     }
 
@@ -78,8 +80,8 @@ export class ConversationStore {
 
   public clearUnreadMessages() {
     const guestId = this.rootStore.userStore.guest!.id
-    if (guestId) {
-      fw.feed.clearUnreadMessages(guestId, this.conversationId!)
+    if (guestId && this.conversationId) {
+      fw.feed.clearUnreadMessages(guestId, this.conversationId)
     }
   }
 
@@ -96,7 +98,8 @@ export class ConversationStore {
 
   private async createNewConvoAndSendMessage(text: string) {
     const postId = await this.createNewConvo()
-    await this._sendMessage(postId, text)
+    const messageId = await this._sendMessage(postId, text)
+    Tracker.analyticsStartConvo(postId, messageId)
     return postId || null
   }
 
@@ -105,7 +108,7 @@ export class ConversationStore {
     const receiver = this.rootStore.userStore.receiver
     const postObject: ICreatePostOptions = {
       participants: [{ id: receiver.id, type: 'user' }],
-      title: 'Widget lead',
+      title: 'Widget Contact Request',
     }
     return fw.posts.addPost(guest.id, postObject)
   }

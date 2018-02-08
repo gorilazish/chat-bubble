@@ -1,9 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'mobx-react'
+import { useStrict } from 'mobx'
 import { RootStore } from './stores'
 import App from './App'
 import { initFb } from './firebase/init'
+import loadSegment from './analytics/loadSegment'
 import persistance from './lib/persistance'
 import poster from './lib/poster'
 import * as T from './types/types'
@@ -37,9 +39,10 @@ function render(element: HTMLElement, widgetSettings: T.IBelloWidgetSettings, st
   ReactDOM.render(app, element)
 }
 
-getSettings()
-  .then(({ settings, state }) => {
-    initFb()
-    render(document.getElementById('root')!, settings, state)
-  })
-  .catch(err => console.error(err))
+getSettings().then(({ settings, state }) => {
+  initFb()
+  loadSegment()
+  useStrict(true)
+  render(document.getElementById('root')!, settings, state)
+})
+.catch(err => console.error(err))
