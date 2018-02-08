@@ -1,7 +1,3 @@
-import {
-    START_CONVERSATION,
-    SEND_MESSAGE,
-  } from './events'
 import { User } from '../models'
 
 
@@ -18,14 +14,12 @@ export default {
 // todo: get auth user from fw instead?
 // todo: add email when available
 function analyticsIdentify(user: User) {
-    if (user) {
-        const trackerOptions = {
-            name: user.displayName || '',
-            avatar: user.getSmallPhoto(),
-        }
-    
-        identify(user.id, trackerOptions)
+    const trackerOptions = {
+        name: user.displayName || '',
+        avatar: user.getSmallPhoto(),
     }
+
+    identify(user.id, trackerOptions)
 }
 
 function analyticsStartConvo(conversationId, firstCommentId) {
@@ -34,15 +28,14 @@ function analyticsStartConvo(conversationId, firstCommentId) {
         commentId: firstCommentId,
         totalRecipients: 1, // I guess there will be only one recipient in widget case
         individualRecipients: 1,
-        // inviteeRecipients: 1, todo: not sure if this should be counted as invitee
-        subjectLine: 'Widget Contact Request',
+        inviteeRecipients: 0,
     }
 
-    track(START_CONVERSATION, trackerOptions)
+    track('Start Conversation', trackerOptions)
 }
 
 function analyticsSendMessage(conversationId, commentId) {
-    track(SEND_MESSAGE, { conversationId, commentId })
+    track('Send Message', { conversationId, commentId })
 }
 
 /**
