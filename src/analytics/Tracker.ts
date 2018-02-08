@@ -18,12 +18,14 @@ export default {
 // todo: get auth user from fw instead?
 // todo: add email when available
 function analyticsIdentify(user: User) {
-    const trackerOptions = {
-        name: user.displayName || '',
-        avatar: user.getSmallPhoto(),
+    if (user) {
+        const trackerOptions = {
+            name: user.displayName || '',
+            avatar: user.getSmallPhoto(),
+        }
+    
+        identify(user.id, trackerOptions)
     }
-
-    identify(user.id, trackerOptions)
 }
 
 function analyticsStartConvo(conversationId, firstCommentId) {

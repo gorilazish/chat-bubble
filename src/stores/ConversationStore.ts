@@ -99,6 +99,7 @@ export class ConversationStore {
   private async createNewConvoAndSendMessage(text: string) {
     const postId = await this.createNewConvo()
     const messageId = await this._sendMessage(postId, text)
+    // todo: identify newly created temp user
     Tracker.analyticsIdentify(this.rootStore.userStore.guest!)
     Tracker.analyticsStartConvo(postId, messageId)
     return postId || null
