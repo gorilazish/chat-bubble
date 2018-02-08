@@ -36,21 +36,33 @@ export class ConversationStore {
   @observable private messages: FWT.IMessage[] = []
   @observable private unreadCount: number
 
-  constructor(rootStore: RootStore, persistedState: T.IPersistedState) {
+  constructor(rootStore: RootStore, persistedState?: T.IPersistedState) {
     this.rootStore = rootStore
     this.conversationId = persistedState ? persistedState.conversationId : null
     this.unreadCount = 0
-    
-    autorun(() => {
-      if (this.conversationId) {
-        this.syncConversation(this.conversationId)
-        this.syncUnreadCount(this.conversationId)
+
+    autorun(async () => {
+      if (this.conversationId && this.rootStore.userStore.guest && this.rootStore.userStore.receiver) {
+        this.syncConversation()
+        this.syncUnreadCount()
       } else {
         if (this.subscriber) {
           this.stopSync()
         }
       }
     })
+  }
+
+  public async clearCache(): Promise<void> {
+    await persistance.clear()
+  }
+
+  public async persistState(): Promise<void> {
+    if (this.conversationId) {
+      await persistance.setItem('BelloWidgetState', { conversationId: this.conversationId })
+    } else {
+      throw new Error('Persisting incorrect state')
+    }
   }
 
   public getMessages(): FWT.IMessage[] {
@@ -63,76 +75,72 @@ export class ConversationStore {
 
   public async sendMessage(text: string) {
     if (this.conversationId) {
-      const messageId = await this._sendMessage(this.conversationId, text)
+      const messageId = await this._sendMessage(text)
       Tracker.analyticsSendMessage(this.conversationId, messageId)
       return
     }
 
     try {
-      const postId = await this.createNewConvoAndSendMessage(text)
-      this.conversationId = postId
-      persistance.setItem('BelloWidgetState', { conversationId: postId })
-      this.syncConversation(postId)
+      await this.rootStore.userStore.createGuest()
+      const postId = await this.createNewConvo()
+      const messageId = await this._sendMessage(text)
+      this.syncConversation()
+      Tracker.analyticsStartConvo(postId, messageId)
     } catch (err) {
       console.log(err)
     }
   }
 
   public clearUnreadMessages() {
-    const guestId = this.rootStore.userStore.guest!.id
-    if (guestId && this.conversationId) {
-      fw.feed.clearUnreadMessages(guestId, this.conversationId)
+    const guest = this.rootStore.userStore.guest
+    if (guest && this.conversationId) {
+      fw.feed.clearUnreadMessages(guest.id, this.conversationId)
     }
   }
 
-  private syncConversation(conversationId) {
+  private syncConversation() {
     // todo: implement pagination
-    this.subscriber = fw.conversations.paginateMessages(conversationId, messages => {
-      runInAction(() => {
-        let msgs: FWT.IMessage[] = []
-        messages.forEach(msg => msgs.unshift(msg))
-        this.messages = msgs
+    if (this.conversationId) {
+      this.subscriber = fw.conversations.paginateMessages(this.conversationId, messages => {
+        runInAction(() => {
+          let msgs: FWT.IMessage[] = []
+          messages.forEach(msg => msgs.unshift(msg))
+          this.messages = msgs
+        })
       })
-    })
+    }
   }
 
-  private async createNewConvoAndSendMessage(text: string) {
-    const postId = await this.createNewConvo()
-    const messageId = await this._sendMessage(postId, text)
-    Tracker.analyticsStartConvo(postId, messageId)
-    return postId || null
-  }
-
-  private createNewConvo(): Promise<string> {
+  private async createNewConvo(): Promise<string> {
     const guest = this.rootStore.userStore.guest!
     const receiver = this.rootStore.userStore.receiver
     const postObject: ICreatePostOptions = {
       participants: [{ id: receiver.id, type: 'user' }],
       title: 'Widget Contact Request',
     }
-    return fw.posts.addPost(guest.id, postObject)
+    this.conversationId = await fw.posts.addPost(guest.id, postObject)
+    this.persistState()
+    return this.conversationId
   }
 
-  private _sendMessage(postId, text: string) {
+  private async _sendMessage(text: string): Promise<string> {
     const commentObject: ISendMessageOption = {
       uid: this.rootStore.userStore.guest!.id,
-      postId,
+      postId: this.conversationId!,
       message: text,
     }
-    try {
-      return fw.conversations.sendMessage(commentObject)
-    } catch (e) {
-      return console.error(e)
-    }
+    return fw.conversations.sendMessage(commentObject)
   }
 
-  private syncUnreadCount(conversationId) {
-    const guestId = this.rootStore.userStore.guest!.id
-    this.unreadCountSubscriber = fw.feed.syncUnreadMessages(guestId, unreadCountByPostId => {
-      runInAction(() => {
-        this.unreadCount = unreadCountByPostId[conversationId] || 0
+  private syncUnreadCount() {
+    if (this.conversationId) {
+      const guestId = this.rootStore.userStore.guest!.id
+      this.unreadCountSubscriber = fw.feed.syncUnreadMessages(guestId, unreadCountByPostId => {
+        runInAction(() => {
+          this.unreadCount = unreadCountByPostId[this.conversationId!] || 0
+        })
       })
-    })
+    }
   }
 
   private stopSync() {

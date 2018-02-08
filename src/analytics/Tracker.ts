@@ -22,7 +22,7 @@ function analyticsIdentify(user: User) {
     identify(user.id, trackerOptions)
 }
 
-function analyticsStartConvo(conversationId, firstCommentId) {
+function analyticsStartConvo(conversationId: string, firstCommentId: string) {
     const trackerOptions = {
         conversationId,
         commentId: firstCommentId,
@@ -34,7 +34,7 @@ function analyticsStartConvo(conversationId, firstCommentId) {
     track('Start Conversation', trackerOptions)
 }
 
-function analyticsSendMessage(conversationId, commentId) {
+function analyticsSendMessage(conversationId: string, commentId: string) {
     track('Send Message', { conversationId, commentId })
 }
 
@@ -53,7 +53,7 @@ function getClient() {
     return (window as any).analytics
 }
 
-function identify(uid, traits) {
+function identify(uid: string, traits) {
     const client = getClient()
     if (uid) {
         client.identify({

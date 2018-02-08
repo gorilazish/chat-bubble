@@ -66,7 +66,8 @@ class App extends React.Component<InjectedProps, IState> {
   }
 
   private transformMessage = (comment: T.IMessage): IWidgetMessage => {
-    const isOwnMessage = comment.uid === this.props.userStore!.guest!.id
+    const guest = this.props.userStore!.guest
+    const isOwnMessage = guest ? comment.uid === guest.id : false
     return {
       author: isOwnMessage ? 'me' : 'them',
       type: 'text',

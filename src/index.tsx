@@ -10,24 +10,15 @@ import persistance from './lib/persistance'
 import poster from './lib/poster'
 import * as T from './types/types'
 
-async function getSettings(): Promise<{ settings: T.IBelloWidgetSettings; state: T.IPersistedState }> {
-  if (process.env.NODE_ENV === 'development') {
-    const settings = (await persistance.getItem('BelloWidgetSettings')) as T.IBelloWidgetSettings
-    const state = await persistance.getItem('BelloWidgetState')
-    if (!settings) {
-      throw new Error('Add mock BelloWidgetSettings to local storage when in dev mode')
-    }
-    return { settings, state }
-  } else {
-    const [settings, state] = await Promise.all([
-      poster.sendMessage('request-settings'),
-      persistance.getItem('BelloWidgetState'),
-    ])
-    return { settings, state }
-  }
+async function getSettings(): Promise<{ settings: T.IBelloWidgetSettings; state?: T.IPersistedState }> {
+  const [settings, state] = await Promise.all([
+    poster.sendMessage('request-settings'),
+    persistance.getItem('BelloWidgetState'),
+  ])
+  return { settings, state: state || undefined }
 }
 
-function render(element: HTMLElement, widgetSettings: T.IBelloWidgetSettings, state: T.IPersistedState) {
+function render(element: HTMLElement, widgetSettings: T.IBelloWidgetSettings, state?: T.IPersistedState) {
   const rootStore = new RootStore(widgetSettings, state)
 
   const app = (

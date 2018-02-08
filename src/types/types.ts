@@ -8,7 +8,7 @@ export interface IBelloWidgetSettings {
 
 export type IPersistedState = {
   conversationId: string
-} | null
+}
 
 export interface IWidgetMessage {
   author: AuthorType
