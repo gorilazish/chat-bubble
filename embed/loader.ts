@@ -13,6 +13,7 @@ function documentReady(cb) {
   }
 }
 
+const isDev = process.env.NODE_ENV === 'development'
 const EVENT_PREFIX = 'BelloWidgetMessage-'
 const FRAME_ID = 'bello-widget-frame'
 const allowedOrigins = ['https://widget.belloforwork.com', 'https://bello-widget.firebaseapp.com']
@@ -78,7 +79,7 @@ function postMessageHandler(event: MessageEvent) {
   const data: IEventData = event.data
 
   // make sure we're handling our events
-  if (allowedOrigins.indexOf(origin) !== -1 && data.name) {
+  if ((isDev || allowedOrigins.indexOf(origin) !== -1) && data.name) {
     const name = data.name.replace(EVENT_PREFIX, '')
     switch (name) {
       case 'toggle': {
