@@ -3,7 +3,6 @@ import { observable, runInAction } from 'mobx'
 import { RootStore } from './index'
 import { User } from '../models'
 
-
 export class UserStore {
   // @ts-ignore
   private rootStore: RootStore
@@ -48,7 +47,7 @@ export class UserStore {
     const uid = this.rootStore.widgetSettings.userId
     fw.auth.syncUserProfile(uid, user => {
       runInAction(() => {
-        this._receiver = user ? new User(user) : null
+        this._receiver = user ? User.createFromApi(user) : null
         this._hasLoadedReceiver = true
       })
     })
@@ -57,11 +56,7 @@ export class UserStore {
   private syncGuestProfile() {
     fw.auth.syncAuth(auth => {
       runInAction(() => {
-        this._guest = auth
-          ? new User({
-              id: auth.user.uid,
-            })
-          : null
+        this._guest = auth ? User.createFromApi(auth.userProfile) : null
         if (!this._guest) {
           this.rootStore.convoStore.clearCache()
         }
