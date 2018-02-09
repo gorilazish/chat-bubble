@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="64">
+  <g>
+    <g>
+      <g transform="translate(1351 -3167)">
+        <use fill="#FFF" transform="translate(-1351 3167)" xlink:href="#path0_fill"/>
+      </g>
+      <g transform="translate(18.1 17)">
+        <use fill="#EB1564" xlink:href="#path1_fill"/>
+        <use fill="url(#paint2_linear)" xlink:href="#path1_fill"/>
+        <use fill="#EB1564" xlink:href="#path2_fill"/>
+        <use fill="url(#paint4_linear)" xlink:href="#path2_fill"/>
+        <use fill="#EB1564" xlink:href="#path3_fill"/>
+        <use fill="url(#paint6_linear)" xlink:href="#path3_fill"/>
+      </g>
+    </g>
+  </g>
+  <defs>
+    <linearGradient id="paint2_linear" x2="1" gradientTransform="matrix(-28.0173 32 -79.6281 -61.1996 67.8 30.6)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EB1572"/>
+      <stop offset="1" stop-color="#D50B56"/>
+    </linearGradient>
+    <linearGradient id="paint4_linear" x2="1" gradientTransform="matrix(-28.0173 32 -79.6281 -61.1996 67.8 30.6)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EB1572"/>
+      <stop offset="1" stop-color="#D50B56"/>
+    </linearGradient>
+    <linearGradient id="paint6_linear" x2="1" gradientTransform="matrix(-28.0173 32 -79.6281 -61.1996 67.8 30.6)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EB1572"/>
+      <stop offset="1" stop-color="#D50B56"/>
+    </linearGradient>
+    <path id="path0_fill" d="M64 32a32 32 0 1 1-64 0 32 32 0 0 1 64 0z"/>
+    <path id="path1_fill" d="M28 10.3H0v5.6h28v-5.6z"/>
+    <path id="path2_fill" d="M28 0H0v5.6h28V0z"/>
+    <path id="path3_fill" d="M28 20.7H0V32l6.8-5.6H28v-5.7z"/>
+  </defs>
+</svg>

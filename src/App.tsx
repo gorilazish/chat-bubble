@@ -3,18 +3,8 @@ import { Launcher } from './components'
 import * as T from '@newsioaps/firebase-wrapper/types'
 import { observer, inject } from 'mobx-react'
 import { UserStore, RootStore, ConversationStore } from './stores'
+import * as Types from './types/types'
 import poster from './lib/poster'
-
-type AuthorType = 'me' | 'them'
-type MessageType = 'text'
-
-interface IWidgetMessage {
-  author: AuthorType
-  type: MessageType
-  data: {
-    text: string
-  }
-}
 
 interface InjectedProps {
   userStore?: UserStore
@@ -42,34 +32,31 @@ class App extends React.Component<InjectedProps, IState> {
     this.props.convoStore!.clearUnreadMessages()
 
     this.setState(state => {
-      const width = !state.isOpen ? '400px' : '80px'
-      const height = !state.isOpen ? '400px' : '80px'
       // it's delayed because of the animations
       window.setTimeout(() => {
-        this.sendLauncherTogglEvent({ width, height })
+        this.sendLauncherTogglEvent()
       }, !state.isOpen ? 0 : 300)
 
       return { isOpen: !state.isOpen }
     })
   }
 
-  private sendLauncherTogglEvent = (opts: { width: string; height: string }) => {
+  private sendLauncherTogglEvent = () => {
     // todo: event data type safety would be nice...
-    poster.sendMessage('toggle', {
-      width: opts.width,
-      height: opts.height,
-    })
+    poster.sendMessage('toggle')
   }
 
-  private transformMessages = (messages: T.IMessage[]): IWidgetMessage[] => {
+  private transformMessages = (messages: T.IMessage[]): Types.IWidgetMessage[] => {
     return messages.map(this.transformMessage)
   }
 
-  private transformMessage = (comment: T.IMessage): IWidgetMessage => {
+  private transformMessage = (comment: T.IMessage): Types.IWidgetMessage => {
     const guest = this.props.userStore!.guest
+    const receiver = this.props.userStore!.receiver
     const isOwnMessage = guest ? comment.uid === guest.id : false
     return {
       author: isOwnMessage ? 'me' : 'them',
+      authorImage: !isOwnMessage ? receiver.getSmallPhoto() : undefined,
       type: 'text',
       data: {
         text: comment.message || '',
@@ -97,7 +84,7 @@ class App extends React.Component<InjectedProps, IState> {
 
     return (
       <Launcher
-        showEmoji
+        showEmoji={false}
         isOpen={this.state.isOpen}
         newMessagesCount={convoStore.getUnreadCount()}
         onMessageWasSent={this.handleSendMessage}

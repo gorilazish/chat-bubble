@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
 import ChatWindow from '../ChatWindow'
-import launcherIcon from '../../assets/logo-no-bg.svg'
-import launcherIconActive from '../../assets/close-icon.png'
+import launcherIcon from '../../assets/bello-logo.svg'
+import launcherIconActive from '../../assets/close-icon.svg'
 import { IWidgetMessage } from 'types/types'
 
 import './Launcher.css'
-
 
 interface IProps {
   isOpen?: boolean

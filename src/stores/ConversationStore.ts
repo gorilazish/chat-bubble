@@ -80,15 +80,11 @@ export class ConversationStore {
       return
     }
 
-    try {
-      await this.rootStore.userStore.createGuest()
-      const postId = await this.createNewConvo()
-      const messageId = await this._sendMessage(text)
-      this.syncConversation()
-      Tracker.analyticsStartConvo(postId, messageId)
-    } catch (err) {
-      console.log(err)
-    }
+    await this.rootStore.userStore.createGuest()
+    const postId = await this.createNewConvo()
+    const messageId = await this._sendMessage(text)
+    this.syncConversation()
+    Tracker.analyticsStartConvo(postId, messageId)
   }
 
   public clearUnreadMessages() {
@@ -118,9 +114,12 @@ export class ConversationStore {
       participants: [{ id: receiver.id, type: 'user' }],
       title: 'Widget Contact Request',
     }
-    this.conversationId = await fw.posts.addPost(guest.id, postObject)
+    const conversationId = await fw.posts.addPost(guest.id, postObject)
+    runInAction(() => {
+      this.conversationId = conversationId
+    })
     this.persistState()
-    return this.conversationId
+    return conversationId
   }
 
   private async _sendMessage(text: string): Promise<string> {

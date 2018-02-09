@@ -12,6 +12,7 @@ export type IPersistedState = {
 
 export interface IWidgetMessage {
   author: AuthorType
+  authorImage?: string
   type: MessageType
   data: DataType
 }

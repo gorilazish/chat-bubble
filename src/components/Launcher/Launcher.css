@@ -1,13 +1,12 @@
 .sc-launcher {
   width: 60px;
   height: 60px;
-  background-color: #4e8cff;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-color: white;
   position: relative;
   border-radius: 50%;
-  box-shadow: none;
+  box-shadow: 0 0 10px #0000003b;
   transition: box-shadow 0.2s ease-in-out;
+  cursor: pointer;
 }
 
 .sc-launcher:before {
