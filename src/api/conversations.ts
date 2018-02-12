@@ -1,8 +1,9 @@
 import * as T from '../types/types'
 
-export function createWidgetConversation(body: T.ICreateConversationBody) {
-    return fetch("https://us-central1-bello-staging.cloudfunctions.net/createWidgetConversation", {
-        method: "post",
+// todo: move this to another file
+function fetchWrapper(url, method, body) {
+    return fetch(url, {
+        method,
         headers: {
             "Content-Type": "application/json",
           },
@@ -14,4 +15,12 @@ export function createWidgetConversation(body: T.ICreateConversationBody) {
         console.error(err)
         return err
     })
+}
+
+export function createWidgetConversation(body: T.ICreateConversationBody) {
+    return fetchWrapper("https://us-central1-bello-staging.cloudfunctions.net/createWidgetConversation", "POST", body)
+}
+
+export function sendMessageEventPayload(body: T.IMessageEventPayload) {
+    return fetchWrapper("https://us-central1-bello-staging.cloudfunctions.net/messageEvent", "POST", body)
 }

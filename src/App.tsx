@@ -59,10 +59,11 @@ class App extends React.Component<InjectedProps, IState> {
     const isOwnMessage = comment.uid === this.props.userStore!.guest!.id
     return {
       author: isOwnMessage ? 'me' : 'them',
-      type: 'text',
+      type: comment.template ? 'templateMessage' : 'text',
       data: {
         text: comment.message || '',
       },
+      template: comment.template ? comment.template : null
     }
   }
 

@@ -1,5 +1,7 @@
+import { ITemplate } from '@newsioaps/firebase-wrapper/types'
+
 type AuthorType = 'me' | 'them'
-type MessageType = 'text' | 'emoji'
+type MessageType = 'text' | 'emoji' | 'templateMessage'
 type DataType = { text: string } | { emoji: string }
 
 export interface IBelloWidgetSettings {
@@ -14,6 +16,7 @@ export interface IWidgetMessage {
   author: AuthorType
   type: MessageType
   data: DataType
+  template: ITemplate | null
 }
 
 export interface IState {
@@ -28,3 +31,13 @@ export interface ICreateConversationBody {
   message: string
   defaultMessage: string
 }
+
+// todo: this should be shared across our clients (fw, fc and etc)
+export interface IMessageEventPayload {
+  event: string
+  sender: {
+    id: string
+  },
+  receivers: { id: string }[]
+  postback: any
+}   

@@ -6,6 +6,7 @@ import { RootStore } from 'stores'
 import persistance from '../lib/persistance'
 import * as T from '../types/types'
 import Api from '../api'
+import { IMessageEventPayload } from '../types/types';
 
 const defaultMessageText = 'Hey, how can I help you?' // todo: not sure where to put it. Could be also taken from config?
 
@@ -47,7 +48,7 @@ export class ConversationStore {
       uid: 'fakeId',
       timestamp: Date.now(),
     }]
-    
+
     autorun(() => {
       if (this.conversationId) {
         this.syncConversation(this.conversationId)
@@ -96,6 +97,18 @@ export class ConversationStore {
     }
   }
 
+  public sendMessageEventPayload(event, value) {
+    const payload: IMessageEventPayload = {
+      event,
+      sender: { id: this.rootStore.userStore.guest!.id },
+      receivers: [{ id: this.rootStore.userStore.receiver!.id }],
+      postback: {
+        value
+      }
+    }
+    Api.conversations.sendMessageEventPayload(payload)
+  }
+
   public clearUnreadMessages() {
     const guestId = this.rootStore.userStore.guest!.id
     if (guestId && this.conversationId) {
@@ -133,11 +146,8 @@ export class ConversationStore {
       postId,
       message: text,
     }
-    try {
-      return fw.conversations.sendMessage(commentObject)
-    } catch (e) {
-      return console.error(e)
-    }
+    
+    return fw.conversations.sendMessage(commentObject)
   }
 
   private syncUnreadCount(conversationId: string) {
