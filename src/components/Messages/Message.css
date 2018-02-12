@@ -20,8 +20,7 @@
 
 .sc-message--avatar {
   background-image: url(https://d13yacurqjgara.cloudfront.net/assets/avatar-default-aa2eab7684294781f93bc99ad394a0eb3249c5768c21390163c9f55ea8ef83a4.gif);
-  background-repeat: no-repeat;
-  background-size: 100%;
+  background-size: cover;
   background-position: center;
   min-width: 30px;
   min-height: 30px;
@@ -37,12 +36,12 @@
   font-size: 14px;
   line-height: 1.4;
   white-space: pre-wrap;
-  -webkit-font-smoothing: subpixel-antialiased
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 .sc-message--content.sent .sc-message--text {
   color: white;
-  background-color: #4e8cff;
+  background-color: #485460;
   max-width: calc(100% - 120px);
   word-wrap: break-word;
 }

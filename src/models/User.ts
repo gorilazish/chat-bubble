@@ -10,14 +10,14 @@ interface ConstructorOptions {
 
 export class User {
   public id: string
-  public displayName: string | null
+  private _displayName: string | null
   private smallPhoto: string | null
   private mediumPhoto: string | null
   private largePhoto: string | null
 
   constructor(opts: ConstructorOptions) {
     this.id = opts.id
-    this.displayName = opts.displayName || null
+    this._displayName = opts.displayName || null
     this.smallPhoto = opts.smallPhoto || null
     this.mediumPhoto = opts.mediumPhoto || null
     this.largePhoto = opts.largePhoto || null
@@ -31,6 +31,10 @@ export class User {
       mediumPhoto: user.photoThumbnailURLMedium,
       largePhoto: user.photoURL,
     })
+  }
+
+  public get displayName() {
+    return this._displayName || 'Anonymous'
   }
 
   getSmallPhoto(): string {

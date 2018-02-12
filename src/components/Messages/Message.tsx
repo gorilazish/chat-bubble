@@ -22,7 +22,6 @@ interface IProps extends InjectedProps {
 }))
 @observer
 class Message extends Component<IProps> {
-
   private renderMessageOfType(type) {
     switch (type) {
       case 'text':
@@ -73,19 +72,20 @@ class Message extends Component<IProps> {
   }
 
   public render() {
-    const contentClassList = [
-      'sc-message--content',
-      (this.props.message.author === 'me' ? 'sent' : 'received'),
-    ]
+    const contentClassList = ['sc-message--content', this.props.message.author === 'me' ? 'sent' : 'received']
     return (
-      <div className='sc-message'>
+      <div className="sc-message">
         <div className={contentClassList.join(' ')}>
-          <div className='sc-message--avatar' style={{
-            backgroundImage: `url(${chatIconUrl})`,
-          }}></div>
+          <div
+            className="sc-message--avatar"
+            style={{
+              backgroundImage: `url(${this.props.message.authorImage || chatIconUrl})`,
+            }}
+          />
           {this.renderMessageOfType(this.props.message.type)}
         </div>
-      </div>)
+      </div>
+    )
   }
 }
 

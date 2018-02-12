@@ -1,5 +1,5 @@
 import fw from '@newsioaps/firebase-wrapper'
-import { observable } from 'mobx'
+import { observable, runInAction } from 'mobx'
 import { RootStore } from './index'
 import { User } from '../models'
 
@@ -8,19 +8,22 @@ export class UserStore {
   private rootStore: RootStore
   @observable private _receiver: User | null
   @observable private _guest: User | null
-  @observable public _hasLoadedReceiver: boolean = false
+  @observable private _hasLoadedReceiver: boolean = false
+  @observable private _hasLoadedGuest: boolean = false
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore
-    this.initGuest()
     this.syncReceiverProfile()
+    this.syncGuestProfile()
   }
 
-  private initGuest(): User {
-    this._guest = new User({
-      id: 'AP0DJiYQjTUIXTbDkNpFFxp3Krz2',
-      displayName: 'Anonymous',
-    })
+  public async createGuest(): Promise<User> {
+    if (!this._guest) {
+      const user = await fw.auth.signInAnonymously()
+      this._guest = new User({
+        id: user.uid,
+      })
+    }
     return this._guest
   }
 
@@ -33,18 +36,32 @@ export class UserStore {
   }
 
   public get hasLoadedReceiver(): boolean {
-    return !!this._hasLoadedReceiver
+    return this._hasLoadedReceiver
   }
 
   public get hasLoadedGuest(): boolean {
-    return !!this._guest
+    return this._hasLoadedGuest
   }
 
   private syncReceiverProfile() {
     const uid = this.rootStore.widgetSettings.userId
     fw.auth.syncUserProfile(uid, user => {
-      this._receiver = user ? new User(user) : null
-      this._hasLoadedReceiver = true
+      runInAction(() => {
+        this._receiver = user ? User.createFromApi(user) : null
+        this._hasLoadedReceiver = true
+      })
+    })
+  }
+
+  private syncGuestProfile() {
+    fw.auth.syncAuth(auth => {
+      runInAction(() => {
+        this._guest = auth ? User.createFromApi(auth.userProfile) : null
+        if (!this._guest) {
+          this.rootStore.convoStore.clearCache()
+        }
+        this._hasLoadedGuest = true
+      })
     })
   }
 }

@@ -10,10 +10,11 @@ export interface IBelloWidgetSettings {
 
 export type IPersistedState = {
   conversationId: string
-} | null
+}
 
 export interface IWidgetMessage {
   author: AuthorType
+  authorImage?: string
   type: MessageType
   data: DataType
   template: ITemplate | null

@@ -6,7 +6,7 @@ export class RootStore {
   public convoStore: ConversationStore
   public readonly widgetSettings: T.IBelloWidgetSettings
 
-  constructor(widgetSettings: T.IBelloWidgetSettings, persistedState: T.IPersistedState) {
+  constructor(widgetSettings: T.IBelloWidgetSettings, persistedState?: T.IPersistedState) {
     this.widgetSettings = widgetSettings
     this.userStore = new UserStore(this)
     this.convoStore = new ConversationStore(this, persistedState)

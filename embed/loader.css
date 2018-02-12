@@ -1,0 +1,46 @@
+#bello-widget-root {
+  position: absolute;
+  z-index: 2147483648;
+}
+
+.bello-widget-frame {
+  position: fixed;
+  top: auto;
+  left: auto;
+  bottom: 24px;
+  right: 24px;
+  width: 76px;
+  height: 76px;
+  visibility: visibile;
+  z-index: 2147483647;
+  transition: none;
+  background: none transaprent;
+  opacity: 1;
+  overflow: hidden;
+}
+
+.bello-widget-frame-open {
+  width: 370px;
+  height: 100%;
+  max-height: 590px;
+  min-height: 290px;
+}
+
+@media (max-width: 450px) {
+  .bello-widget-frame {
+    bottom: 0;
+    right: 0;
+  }
+
+  .bello-widget-frame-open {
+    width: 100%;
+    max-height: 100%;
+  }
+}
+
+.bello-widget-frame > iframe {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+}

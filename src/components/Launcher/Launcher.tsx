@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
 import ChatWindow from '../ChatWindow'
-import launcherIcon from '../../assets/logo-no-bg.svg'
-import launcherIconActive from '../../assets/close-icon.png'
+import launcherIcon from '../../assets/bello-logo.svg'
+import launcherIconActive from '../../assets/close-icon.svg'
 import { IWidgetMessage } from 'types/types'
 
 import './Launcher.css'
-
 
 interface IProps {
   isOpen?: boolean
@@ -13,7 +12,7 @@ interface IProps {
   newMessagesCount?: number
   messageList: IWidgetMessage[]
   onMessageWasSent: (message: IWidgetMessage) => void
-  handleClick?: (e: React.SyntheticEvent<HTMLInputElement>) => void
+  handleClick?: () => void
 }
 
 interface IState {
@@ -30,13 +29,13 @@ class Launcher extends Component<IProps, IState> {
     }
   }
 
-  private handleClick = (e) => {
+  private handleClick = () => {
     this.setState({
       isOpen: !this.state.isOpen,
     })
 
     if (this.props.handleClick !== undefined) {
-      this.props.handleClick(e)
+      this.props.handleClick()
     }
   }
 
@@ -62,10 +61,10 @@ class Launcher extends Component<IProps, IState> {
           messageList={this.props.messageList}
           onUserInputSubmit={this.props.onMessageWasSent}
           isOpen={isOpen}
-          onClose={this.handleClick.bind(this)}
+          onClose={this.handleClick}
           showEmoji={this.props.showEmoji}
         />
-        <div className={classList.join(' ')} onClick={this.handleClick.bind(this)}>
+        <div className={classList.join(' ')} onClick={this.handleClick}>
           <MessageCount count={this.props.newMessagesCount} isOpen={isOpen} />
           <img className={'sc-open-icon'} src={launcherIconActive} />
           <img className={'sc-closed-icon'} src={launcherIcon} />

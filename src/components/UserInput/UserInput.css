@@ -4,12 +4,12 @@
   position: relative;
   bottom: 0;
   display: flex;
-  background-color: #f4f7f9;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
-  transition: background-color .2s ease,box-shadow .2s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  background-color: white;
+  box-shadow: 0px -3px 12px 0px rgba(150, 165, 190, 0.3);
 }
-
 
 .sc-user-input--text {
   width: 300px;
@@ -61,9 +61,6 @@
 }
 
 .sc-user-input.active {
-  box-shadow: none;
-  background-color: white;
-  box-shadow: 0px -5px 20px 0px rgba(150, 165, 190, 0.2);
 }
 
 .sc-user-input--send-icon {
@@ -100,7 +97,8 @@
   align-self: center;
 }
 
-.sc-user-input--emoji-icon path, .sc-user-input--emoji-icon circle {
+.sc-user-input--emoji-icon path,
+.sc-user-input--emoji-icon circle {
   fill: rgba(86, 88, 103, 0.3);
 }
 
