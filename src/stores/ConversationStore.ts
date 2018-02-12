@@ -3,12 +3,12 @@ import fw from '@newsioaps/firebase-wrapper'
 import * as FWT from '@newsioaps/firebase-wrapper/types'
 import { Paginator } from '@newsioaps/firebase-wrapper/paginator'
 import { RootStore } from 'stores'
+import { Message } from '../models'
 import * as T from '../types/types'
 import Api from '../api'
 import Tracker from '../analytics/Tracker'
 import persistance from '../lib/persistance'
-import { IMessageEventPayload } from '../types/types'
-
+import { IPostbackEvent } from '../types/types'
 
 const defaultMessageText = 'Hey, how can I help you?' // todo: not sure where to put it. Could be also taken from config?
 
@@ -38,18 +38,21 @@ export class ConversationStore {
   private subscriber: Paginator<FWT.IMessage> | null
   private unreadCountSubscriber: (() => void) | null
   @observable private conversationId: string | null
-  @observable private messages: FWT.IMessage[] = []
+  @observable private messages: Message[] = []
   @observable private unreadCount: number
 
   constructor(rootStore: RootStore, persistedState?: T.IPersistedState) {
     this.rootStore = rootStore
     this.conversationId = persistedState ? persistedState.conversationId : null
     this.unreadCount = 0
-    this.messages = [{
-      message: defaultMessageText,
-      uid: 'fakeId',
-      timestamp: Date.now(),
-    }]
+    this.messages = [
+      {
+        id: 'initial-message',
+        message: defaultMessageText,
+        uid: 'fakeId',
+        timestamp: Date.now(),
+      },
+    ]
 
     autorun(async () => {
       if (this.conversationId && this.rootStore.userStore.guest && this.rootStore.userStore.receiver) {
@@ -75,7 +78,7 @@ export class ConversationStore {
     }
   }
 
-  public getMessages(): FWT.IMessage[] {
+  public getMessages(): Message[] {
     return this.messages
   }
 
@@ -90,17 +93,19 @@ export class ConversationStore {
       return
     }
 
-    const addOptimisticMessage = (text: string) => {
-      const optimisticMessage = {
-        message: text,
-        uid: this.rootStore.userStore.guest!.id,
-        timestamp: Date.now(),
-      }
+    // const addOptimisticMessage = (text: string) => {
+    //   const optimisticMessage = {
+    //     message: text,
+    //     uid: 'some-temp-guest-id',
+    //     timestamp: Date.now(),
+    //   }
 
-      this.messages.push(optimisticMessage)      
-    }
+    //   runInAction(() => {
+    //     this.messages.push(optimisticMessage)
+    //   })
+    // }
 
-    addOptimisticMessage(text)
+    // addOptimisticMessage(text)
     await this.rootStore.userStore.createGuest()
     const postId = await this.createNewConvo(text)
     const messageId = await this._sendMessage(text)
@@ -108,16 +113,21 @@ export class ConversationStore {
     Tracker.analyticsStartConvo(postId, messageId)
   }
 
-  public sendMessageEventPayload(event, value) {
-    const payload: IMessageEventPayload = {
-      event,
-      sender: { id: this.rootStore.userStore.guest!.id },
-      receivers: [{ id: this.rootStore.userStore.receiver!.id }],
-      postback: {
-        value
+  // todo: use element index here
+  public async sendPostbackEvent(messageId: string, originalPayload: string, value: string) {
+    if (this.conversationId) {
+      const event: IPostbackEvent = {
+        messageId,
+        postId: this.conversationId,
+        payload: originalPayload,
+        sender: { id: this.rootStore.userStore.guest!.id },
+        receivers: [{ id: this.rootStore.userStore.receiver!.id }],
+        data: {
+          value,
+        },
       }
+      await Api.conversations.sendPostbackEvent(event)
     }
-    Api.conversations.sendMessageEventPayload(payload)
   }
 
   public clearUnreadMessages() {
@@ -132,8 +142,8 @@ export class ConversationStore {
     if (this.conversationId) {
       this.subscriber = fw.conversations.paginateMessages(this.conversationId, messages => {
         runInAction(() => {
-          let msgs: FWT.IMessage[] = []
-          messages.forEach(msg => msgs.unshift(msg))
+          let msgs: Message[] = []
+          messages.forEach((msg, mid) => msgs.unshift(Message.createFromApi(mid, msg)))
           this.messages = msgs
         })
       })

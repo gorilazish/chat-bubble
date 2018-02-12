@@ -20,11 +20,14 @@ export class UserStore {
   public async createGuest(): Promise<User> {
     if (!this._guest) {
       const user = await fw.auth.signInAnonymously()
-      this._guest = new User({
-        id: user.uid,
+      const guestUser = new User({ id: user.uid })
+      runInAction(() => {
+        this._guest = guestUser
       })
+      return guestUser
+    } else {
+      return this._guest
     }
-    return this._guest
   }
 
   public get receiver(): User {

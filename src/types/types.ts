@@ -1,4 +1,5 @@
-import { ITemplate } from '@newsioaps/firebase-wrapper/types'
+import * as T from '@newsioaps/firebase-wrapper/types'
+import { Message } from '../models'
 
 type AuthorType = 'me' | 'them'
 type MessageType = 'text' | 'emoji' | 'templateMessage'
@@ -17,7 +18,8 @@ export interface IWidgetMessage {
   authorImage?: string
   type: MessageType
   data: DataType
-  template: ITemplate | null
+  template: T.ITemplate | null
+  originalMessage: Message
 }
 
 export interface IState {
@@ -34,11 +36,13 @@ export interface ICreateConversationBody {
 }
 
 // todo: this should be shared across our clients (fw, fc and etc)
-export interface IMessageEventPayload {
-  event: string
+export interface IPostbackEvent {
+  postId: string
+  messageId: string
+  payload: string
   sender: {
     id: string
-  },
+  }
   receivers: { id: string }[]
-  postback: any
-}   
+  data: any
+}

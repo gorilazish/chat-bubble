@@ -1,26 +1,41 @@
 import * as T from '../types/types'
 
-// todo: move this to another file
-function fetchWrapper(url, method, body) {
-    return fetch(url, {
-        method,
-        headers: {
-            "Content-Type": "application/json",
-          },
-        body: JSON.stringify(body),
-    })
-    .then(response => response.json())
-    .then(data => data.postId)
-    .catch(err => {
-        console.error(err)
-        return err
-    })
+// todo: inject based on env
+const remoteUrl = 'https://us-central1-bello-staging.cloudfunctions.net'
+
+/**
+ * Fetch wrapper to make POST requests to our firebase functions HTTP endpoints
+ */
+async function postHttp(endpoint: string, body: any): Promise<any> {
+  const response = await fetch(remoteUrl + endpoint, {
+    method: 'POST', // should always be a POST
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+
+  const contentType = response.headers.get('content-type')
+
+  if (contentType && contentType.includes('application/json')) {
+    const json = await response.json()
+    return json
+  } else {
+    // support only json payload for now
+    return null
+  }
 }
 
-export function createWidgetConversation(body: T.ICreateConversationBody) {
-    return fetchWrapper("https://us-central1-bello-staging.cloudfunctions.net/createWidgetConversation", "POST", body)
+/**
+ * Resolves with postId
+ */
+export async function createWidgetConversation(body: T.ICreateConversationBody): Promise<string> {
+  const path = '/createWidgetConversation'
+  const res = await postHttp(path, body)
+  return res.postId
 }
 
-export function sendMessageEventPayload(body: T.IMessageEventPayload) {
-    return fetchWrapper("https://us-central1-bello-staging.cloudfunctions.net/messageEvent", "POST", body)
+export async function sendPostbackEvent(body: T.IPostbackEvent): Promise<void> {
+  const path = '/widgetPostbackHook'
+  await postHttp(path, body)
 }

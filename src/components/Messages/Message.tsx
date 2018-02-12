@@ -8,7 +8,6 @@ import chatIconUrl from './../../assets/chat-icon.svg'
 
 import './Message.css'
 
-
 interface InjectedProps {
   convoStore?: ConversationStore
 }
@@ -40,7 +39,7 @@ class Message extends Component<IProps> {
     const { template, ...rest } = message
     let templateElement
 
-    switch(template!.type) {
+    switch (template!.type) {
       case 'input':
         templateElement = this.renderInputTemplate(template)
     }
@@ -53,18 +52,25 @@ class Message extends Component<IProps> {
     )
   }
 
-  private handleMessageEvent = (e, templateEvent) => {
-    this.props.convoStore!.sendMessageEventPayload(templateEvent, e.target.value)
+  private handlePostbackEvent = (e, payload: string) => {
+    const { originalMessage } = this.props.message
+    const mid = originalMessage.id
+    this.props.convoStore!.sendPostbackEvent(mid, payload, e.target.value)
   }
 
   private renderInputTemplate(template) {
+    // todo: missing types
     return (
       <div>
         <p>{template.title}</p>
         {template.elements.map(elem => (
           <div>
             {elem.input.label && <p>{elem.input.label}</p>}
-            <input key={elem.input.placeholder} placeholder={elem.input.placeholder} onBlur={(e) => this.handleMessageEvent(e, elem.input.action)} />
+            <input
+              key={elem.input.placeholder}
+              placeholder={elem.input.placeholder}
+              onBlur={e => this.handlePostbackEvent(e, elem.input.payload)}
+            />
           </div>
         ))}
       </div>

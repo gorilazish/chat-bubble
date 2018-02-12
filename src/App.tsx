@@ -1,11 +1,10 @@
 import * as React from 'react'
 import { Launcher } from './components'
-import * as T from '@newsioaps/firebase-wrapper/types'
 import { observer, inject } from 'mobx-react'
 import { UserStore, RootStore, ConversationStore } from './stores'
+import { Message } from './models'
 import * as Types from './types/types'
 import poster from './lib/poster'
-
 
 interface InjectedProps {
   userStore?: UserStore
@@ -47,22 +46,23 @@ class App extends React.Component<InjectedProps, IState> {
     poster.sendMessage('toggle')
   }
 
-  private transformMessages = (messages: T.IMessage[]): Types.IWidgetMessage[] => {
+  private transformMessages = (messages: Message[]): Types.IWidgetMessage[] => {
     return messages.map(this.transformMessage)
   }
 
-  private transformMessage = (comment: T.IMessage): Types.IWidgetMessage => {
+  private transformMessage = (message: Message): Types.IWidgetMessage => {
     const guest = this.props.userStore!.guest
     const receiver = this.props.userStore!.receiver
-    const isOwnMessage = guest ? comment.uid === guest.id : false
+    const isOwnMessage = guest ? message.uid === guest.id : false
     return {
       author: isOwnMessage ? 'me' : 'them',
-      type: comment.template ? 'templateMessage' : 'text',
+      type: message.template ? 'templateMessage' : 'text',
       authorImage: !isOwnMessage ? receiver.getSmallPhoto() : undefined,
       data: {
-        text: comment.message || '',
+        text: message.message || '',
       },
-      template: comment.template ? comment.template : null
+      template: message.template ? message.template : null,
+      originalMessage: message,
     }
   }
 
