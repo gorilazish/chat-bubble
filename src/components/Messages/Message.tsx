@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { observer, inject } from 'mobx-react'
 import { RootStore, ConversationStore } from '../../stores'
+import * as FWT from '@newsioaps/firebase-wrapper/types'
 import TextMessage from './TextMessage'
 import EmojiMessage from './EmojiMessage'
 import { IWidgetMessage } from '../../types/types'
@@ -12,6 +13,10 @@ interface InjectedProps {
   convoStore?: ConversationStore
 }
 
+interface IState {
+  inputValue: string
+}
+
 interface IProps extends InjectedProps {
   message: IWidgetMessage
 }
@@ -20,7 +25,23 @@ interface IProps extends InjectedProps {
   convoStore: store.convoStore,
 }))
 @observer
-class Message extends Component<IProps> {
+class Message extends Component<IProps, IState> {
+  state: IState = {
+    inputValue: '',
+  }
+
+  private handlePostbackEvent = (_e: React.MouseEvent<HTMLButtonElement>, payload: string) => {
+    if (this.state.inputValue) {
+      const { originalMessage } = this.props.message
+      const mid = originalMessage.id
+      this.props.convoStore!.sendPostbackEvent(mid, payload, this.state.inputValue)
+    }
+  }
+
+  private handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ inputValue: e.target.value })
+  }
+
   private renderMessageOfType(type) {
     switch (type) {
       case 'text':
@@ -38,10 +59,14 @@ class Message extends Component<IProps> {
     const message = this.props.message
     const { template, ...rest } = message
     let templateElement
+    const templateType = template!.type
 
-    switch (template!.type) {
+    switch (templateType) {
       case 'input':
-        templateElement = this.renderInputTemplate(template)
+        templateElement = this.renderInputTemplate(template!)
+        break
+      default:
+        templateElement = <p>[Template type: {templateType} is not supported]</p>
     }
 
     return (
@@ -52,25 +77,19 @@ class Message extends Component<IProps> {
     )
   }
 
-  private handlePostbackEvent = (e, payload: string) => {
-    const { originalMessage } = this.props.message
-    const mid = originalMessage.id
-    this.props.convoStore!.sendPostbackEvent(mid, payload, e.target.value)
-  }
-
-  private renderInputTemplate(template) {
-    // todo: missing types
+  private renderInputTemplate(template: FWT.ITemplate) {
     return (
       <div>
-        <p>{template.title}</p>
-        {template.elements.map(elem => (
-          <div>
+        {template.elements.map((elem: FWT.IInputTemplate, idx) => (
+          <div key={idx}>
             {elem.input.label && <p>{elem.input.label}</p>}
             <input
-              key={elem.input.placeholder}
+              disabled={!!elem.input.value}
               placeholder={elem.input.placeholder}
-              onBlur={e => this.handlePostbackEvent(e, elem.input.payload)}
+              onChange={this.handleInputChange}
+              value={elem.input.value || this.state.inputValue}
             />
+            {!elem.input.value && <button onClick={e => this.handlePostbackEvent(e, elem.input.payload)}>OK</button>}
           </div>
         ))}
       </div>
