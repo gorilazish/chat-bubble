@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import ChatWindow from '../ChatWindow'
 import launcherIcon from '../../assets/bello-logo.svg'
 import launcherIconActive from '../../assets/close-icon.svg'
-import { IWidgetMessage } from 'types/types'
+import { Message } from '../../models'
 
 import './Launcher.css'
 
@@ -10,8 +10,8 @@ interface IProps {
   isOpen?: boolean
   showEmoji: boolean
   newMessagesCount?: number
-  messageList: IWidgetMessage[]
-  onMessageWasSent: (message: IWidgetMessage) => void
+  messageList: Message[]
+  onMessageWasSent: (messageText: string) => void
   handleClick?: () => void
 }
 

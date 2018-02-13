@@ -2,8 +2,6 @@ import * as React from 'react'
 import { Launcher } from './components'
 import { observer, inject } from 'mobx-react'
 import { UserStore, RootStore, ConversationStore } from './stores'
-import { Message } from './models'
-import * as Types from './types/types'
 import poster from './lib/poster'
 
 interface InjectedProps {
@@ -46,28 +44,7 @@ class App extends React.Component<InjectedProps, IState> {
     poster.sendMessage('toggle')
   }
 
-  private transformMessages = (messages: Message[]): Types.IWidgetMessage[] => {
-    return messages.map(this.transformMessage)
-  }
-
-  private transformMessage = (message: Message): Types.IWidgetMessage => {
-    const guest = this.props.userStore!.guest
-    const receiver = this.props.userStore!.receiver
-    const isOwnMessage = guest ? message.uid === guest.id : false
-    return {
-      author: isOwnMessage ? 'me' : 'them',
-      type: message.template ? 'templateMessage' : 'text',
-      authorImage: !isOwnMessage ? receiver.getSmallPhoto() : undefined,
-      data: {
-        text: message.message || '',
-      },
-      template: message.template ? message.template : null,
-      originalMessage: message,
-    }
-  }
-
-  private handleSendMessage = message => {
-    const messageText = message.data.text || message.data.emoji
+  private handleSendMessage = messageText => {
     this.props.convoStore!.sendMessage(messageText)
   }
 
@@ -90,7 +67,7 @@ class App extends React.Component<InjectedProps, IState> {
         isOpen={this.state.isOpen}
         newMessagesCount={convoStore.getUnreadCount()}
         onMessageWasSent={this.handleSendMessage}
-        messageList={this.transformMessages(convoStore.getMessages())}
+        messageList={convoStore.getMessages()}
         handleClick={this.handleLauncherClick}
       />
     )

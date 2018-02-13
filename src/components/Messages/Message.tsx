@@ -1,18 +1,18 @@
 import React, { Component } from 'react'
 import { observer, inject } from 'mobx-react'
-import { RootStore, ConversationStore } from '../../stores'
+import { RootStore, ConversationStore, UserStore } from '../../stores'
 import * as FWT from '@newsioaps/firebase-wrapper/types'
 import TextMessage from './TextMessage'
-import EmojiMessage from './EmojiMessage'
-import { IWidgetMessage } from '../../types/types'
 import emailMatch from '../../lib/emailRegex'
 import chatIconUrl from './../../assets/chat-icon.svg'
+import { Message } from '../../models'
 
 import './Message.css'
 
 
 interface InjectedProps {
   convoStore?: ConversationStore
+  userStore?: UserStore
 }
 
 interface IState {
@@ -21,14 +21,15 @@ interface IState {
 }
 
 interface IProps extends InjectedProps {
-  message: IWidgetMessage
+  message: Message
 }
 
 @inject((store: RootStore) => ({
   convoStore: store.convoStore,
+  userStore: store.userStore,
 }))
 @observer
-class Message extends Component<IProps, IState> {
+class MessageComponent extends Component<IProps, IState> {
   state: IState = {
     inputValue: '',
     validEmail: false,
@@ -42,8 +43,8 @@ class Message extends Component<IProps, IState> {
 
   private handlePostbackEvent = (payload: string) => {
     if (this.state.inputValue) {
-      const { originalMessage } = this.props.message
-      const mid = originalMessage.id
+      const { id } = this.props.message
+      const mid = id
       this.props.convoStore!.sendPostbackEvent(mid, payload, this.state.inputValue)
     }
   }
@@ -58,22 +59,18 @@ class Message extends Component<IProps, IState> {
     }
   }
 
-  private renderMessageOfType(type) {
-    switch (type) {
-      case 'text':
-        return <TextMessage {...this.props.message} />
-      case 'emoji':
-        return <EmojiMessage {...this.props.message} />
-      case 'templateMessage':
-        return this.renderTemplateMessage()
-      default:
-        return
+  private renderMessageOfType() {
+    const { message } = this.props
+    if (!!message.template) {
+      return this.renderTemplateMessage()
     }
+
+    return <TextMessage text={message.message} />
   }
 
   private renderTemplateMessage() {
     const message = this.props.message
-    const { template, ...rest } = message
+    const { template } = message
     let templateElement
     const templateType = template!.type
 
@@ -87,13 +84,14 @@ class Message extends Component<IProps, IState> {
 
     return (
       <div>
-        <TextMessage {...rest} />
+        <TextMessage text={message.message} />
         {templateElement}
       </div>
     )
   }
 
   private renderInputTemplate(template: FWT.ITemplate) {
+    const { message } = this.props
     return (
       <div className={'sc-message--template-content'}>
         {template.elements.map((elem: FWT.IInputTemplate, idx) => (
@@ -101,7 +99,7 @@ class Message extends Component<IProps, IState> {
             {elem.input.label && <p>{elem.input.label}</p>}
             {!!elem.input.value ? <p>{elem.input.value}</p> : [
             <input
-              key={elem.input.payload}
+              key={message.id + message.timestamp}
               disabled={!!elem.input.value}
               placeholder={elem.input.placeholder || 'Enter your email'}
               onChange={this.handleInputChange}
@@ -110,7 +108,7 @@ class Message extends Component<IProps, IState> {
             />,
             <button
             // todo: use message details for key
-              key={elem.input.payload}
+              key={message.timestamp + message.id}
               onClick={() => this.handlePostbackEvent(elem.input.payload)}
               style={!this.state.validEmail ? { backgroundColor: 'rgba(240, 16, 101, 0.4)' } : undefined}>
               Submit
@@ -122,19 +120,38 @@ class Message extends Component<IProps, IState> {
     )
   }
 
+  private isOwnMessage() {
+    const { userStore, message } = this.props
+    if (userStore && userStore.guest) {
+      return userStore.guest.id === message.uid
+    }
+
+    // this is because when writing very first message, there is no guest created yet, but we want to show optimistic message
+    return true
+  }
+
+  private getAvatarImage() {
+    const { userStore, message } = this.props
+    if (userStore && userStore.receiver) {
+      return userStore.receiver.id === message.uid ? userStore.receiver.getSmallPhoto() : chatIconUrl
+    }
+
+    return chatIconUrl
+  }
+
   public render() {
-    const contentClassList = ['sc-message--content', this.props.message.author === 'me' ? 'sent' : 'received']
+    const contentClassList = ['sc-message--content', this.isOwnMessage() ? 'sent' : 'received']
     return (
       <div className="sc-message">
         <div className={contentClassList.join(' ')}>
           <div
             className="sc-message--avatar"
             style={{
-              backgroundImage: `url(${this.props.message.authorImage || chatIconUrl})`,
+              backgroundImage: `url(${this.getAvatarImage()})`,
             }}
           />
           <div className={'sc-message--bubble'}>
-            {this.renderMessageOfType(this.props.message.type)}
+            {this.renderMessageOfType()}
           </div>
         </div>
       </div>
@@ -142,4 +159,4 @@ class Message extends Component<IProps, IState> {
   }
 }
 
-export default Message
+export default MessageComponent

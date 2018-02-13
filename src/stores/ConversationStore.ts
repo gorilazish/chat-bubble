@@ -93,9 +93,8 @@ export class ConversationStore {
       return
     }
 
-    // todo: need to use current guest id / or show optimistic message as ownMessage
     const addOptimisticMessage = (text: string) => {
-      const optimisticMessage = {
+      const optimisticMessage: Message = {
         id: 'optimistic-message',
         message: text,
         timestamp: Date.now(),

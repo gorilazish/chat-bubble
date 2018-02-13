@@ -2,33 +2,25 @@ import React, { Component } from 'react'
 import MessageList from '../MessageList'
 import UserInput from '../UserInput'
 import Header from '../Header'
-import { IWidgetMessage } from '../../types/types'
+import { Message } from '../../models'
 
 import './ChatWindow.css'
 
 interface IProps {
   isOpen?: boolean
   showEmoji: boolean
-  messageList: IWidgetMessage[]
+  messageList: Message[]
   onClose: () => void
-  onUserInputSubmit: (message: IWidgetMessage) => void
+  onUserInputSubmit: (messageText: string) => void
 }
 
-interface IState {
-  messages: IWidgetMessage[]
-}
-
-class ChatWindow extends Component<IProps, IState> {
+class ChatWindow extends Component<IProps> {
   constructor(props) {
     super(props)
   }
 
-  private onUserInputSubmit = message => {
-    this.props.onUserInputSubmit(message)
-  }
-
-  public onMessageReceived = message => {
-    this.setState({ messages: [...this.state.messages, message] })
+  private onUserInputSubmit = messageText => {
+    this.props.onUserInputSubmit(messageText)
   }
 
   public render() {

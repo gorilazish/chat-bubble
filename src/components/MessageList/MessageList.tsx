@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import Message from '../Messages'
-import { IWidgetMessage } from 'types/types'
+import MessageComponent from '../Messages'
+import { Message } from '../../models'
+
 
 interface IProps {
-  messages: IWidgetMessage[]
+  messages: Message[]
 }
 
 class MessageList extends Component<IProps> {
@@ -17,7 +18,7 @@ class MessageList extends Component<IProps> {
     return (
       <div className="sc-message-list" ref={el => (this.scrollList = el)}>
         {this.props.messages.map((message, i) => {
-          return <Message message={message} key={i} />
+          return <MessageComponent message={message} key={i} />
         })}
       </div>
     )
