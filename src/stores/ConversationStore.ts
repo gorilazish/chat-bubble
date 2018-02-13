@@ -93,24 +93,24 @@ export class ConversationStore {
       return
     }
 
-    // const addOptimisticMessage = (text: string) => {
-    //   const optimisticMessage = {
-    //     message: text,
-    //     uid: 'some-temp-guest-id',
-    //     timestamp: Date.now(),
-    //   }
+    const addOptimisticMessage = (text: string) => {
+      const optimisticMessage = {
+        id: 'optimistic-message',
+        message: text,
+        uid: this.rootStore.userStore.guest!.id, // id is used to display message as own
+        timestamp: Date.now(),
+      }
 
-    //   runInAction(() => {
-    //     this.messages.push(optimisticMessage)
-    //   })
-    // }
+      runInAction(() => {
+        this.messages.push(optimisticMessage)
+      })
+    }
 
-    // addOptimisticMessage(text)
+    addOptimisticMessage(text)
     await this.rootStore.userStore.createGuest()
     const postId = await this.createNewConvo(text)
-    const messageId = await this._sendMessage(text)
     this.syncConversation()
-    Tracker.analyticsStartConvo(postId, messageId)
+    Tracker.analyticsStartConvo(postId)
   }
 
   // todo: use element index here
@@ -159,12 +159,19 @@ export class ConversationStore {
       message: text,
       defaultMessage: defaultMessageText,
     }
-    const conversationId = await Api.conversations.createWidgetConversation(postObject)
-    runInAction(() => {
-      this.conversationId = conversationId
-    })
-    this.persistState()
-    return conversationId
+    try {
+      const conversationId = await Api.conversations.createWidgetConversation(postObject)
+      runInAction(() => {
+        this.conversationId = conversationId
+      })
+      this.persistState()
+      return conversationId
+    } catch (err) {
+      runInAction(() => {
+        this.messages = this.messages.filter(m => m.id !== 'optimistic-message')
+      })
+      return err
+    }
   }
 
   private async _sendMessage(text: string): Promise<string> {
