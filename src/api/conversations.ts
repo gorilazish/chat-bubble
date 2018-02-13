@@ -1,7 +1,6 @@
 import * as T from '../types/types'
 
-// todo: inject based on env
-const remoteUrl = 'https://us-central1-bello-staging.cloudfunctions.net'
+const remoteUrl = process.env.API_URL
 
 /**
  * Fetch wrapper to make POST requests to our firebase functions HTTP endpoints
