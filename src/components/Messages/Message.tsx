@@ -5,9 +5,11 @@ import * as FWT from '@newsioaps/firebase-wrapper/types'
 import TextMessage from './TextMessage'
 import EmojiMessage from './EmojiMessage'
 import { IWidgetMessage } from '../../types/types'
+import emailMatch from '../../lib/emailRegex'
 import chatIconUrl from './../../assets/chat-icon.svg'
 
 import './Message.css'
+
 
 interface InjectedProps {
   convoStore?: ConversationStore
@@ -15,6 +17,7 @@ interface InjectedProps {
 
 interface IState {
   inputValue: string
+  validEmail: boolean
 }
 
 interface IProps extends InjectedProps {
@@ -28,9 +31,16 @@ interface IProps extends InjectedProps {
 class Message extends Component<IProps, IState> {
   state: IState = {
     inputValue: '',
+    validEmail: false,
   }
 
-  private handlePostbackEvent = (_e: React.MouseEvent<HTMLButtonElement>, payload: string) => {
+  private handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>, inputElement: FWT.IInput) => {
+    if (e.key == 'Enter' && this.state.validEmail) {
+      this.handlePostbackEvent(inputElement.payload)
+    }
+  }
+
+  private handlePostbackEvent = (payload: string) => {
     if (this.state.inputValue) {
       const { originalMessage } = this.props.message
       const mid = originalMessage.id
@@ -39,7 +49,13 @@ class Message extends Component<IProps, IState> {
   }
 
   private handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ inputValue: e.target.value })
+    const inputValue = e.target.value
+    this.setState({ inputValue })
+    if (emailMatch(inputValue)) {
+      this.setState({ validEmail: true })
+    } else {
+      this.setState({ validEmail: false })
+    }
   }
 
   private renderMessageOfType(type) {
@@ -79,17 +95,27 @@ class Message extends Component<IProps, IState> {
 
   private renderInputTemplate(template: FWT.ITemplate) {
     return (
-      <div>
+      <div className={'sc-message--template-content'}>
         {template.elements.map((elem: FWT.IInputTemplate, idx) => (
-          <div key={idx}>
+          <div key={idx} className={'sc-message--template-element'}>
             {elem.input.label && <p>{elem.input.label}</p>}
+            {!!elem.input.value ? <p>{elem.input.value}</p> : [
             <input
+              key={elem.input.payload}
               disabled={!!elem.input.value}
-              placeholder={elem.input.placeholder}
+              placeholder={elem.input.placeholder || 'Enter your email'}
               onChange={this.handleInputChange}
               value={elem.input.value || this.state.inputValue}
-            />
-            {!elem.input.value && <button onClick={e => this.handlePostbackEvent(e, elem.input.payload)}>OK</button>}
+              onKeyPress={(e) => this.handleKeyPress(e, elem.input)}
+            />,
+            <button
+            // todo: use message details for key
+              key={elem.input.payload}
+              onClick={() => this.handlePostbackEvent(elem.input.payload)}
+              style={!this.state.validEmail ? { backgroundColor: 'rgba(240, 16, 101, 0.4)' } : undefined}>
+              Submit
+            </button>
+            ]}
           </div>
         ))}
       </div>
@@ -107,7 +133,9 @@ class Message extends Component<IProps, IState> {
               backgroundImage: `url(${this.props.message.authorImage || chatIconUrl})`,
             }}
           />
-          {this.renderMessageOfType(this.props.message.type)}
+          <div className={'sc-message--bubble'}>
+            {this.renderMessageOfType(this.props.message.type)}
+          </div>
         </div>
       </div>
     )
