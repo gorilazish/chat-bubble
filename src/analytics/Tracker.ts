@@ -22,7 +22,7 @@ function analyticsIdentify(user: User) {
     identify(user.id, trackerOptions)
 }
 
-function analyticsStartConvo(conversationId: string, firstCommentId: string) {
+function analyticsStartConvo(conversationId: string, firstCommentId?: string) {
     const trackerOptions = {
         conversationId,
         commentId: firstCommentId,
