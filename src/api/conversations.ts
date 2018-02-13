@@ -1,6 +1,6 @@
 import * as T from '../types/types'
 
-const remoteUrl = process.env.API_URL
+const remoteUrl: string = JSON.parse(process.env.API_URL!)
 
 /**
  * Fetch wrapper to make POST requests to our firebase functions HTTP endpoints
