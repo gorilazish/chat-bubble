@@ -49,6 +49,9 @@ export class UserStore {
   private syncReceiverProfile() {
     const uid = this.rootStore.widgetSettings.userId
     fw.auth.syncUserProfile(uid, user => {
+      if (!this._hasLoadedReceiver && user) {
+        this.rootStore.convoStore.addMessage(uid, 'Hey, how can I help you?')
+      }
       runInAction(() => {
         this._receiver = user ? User.createFromApi(user) : null
         this._hasLoadedReceiver = true

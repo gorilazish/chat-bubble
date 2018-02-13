@@ -1,4 +1,4 @@
-import { runInAction, observable, autorun } from 'mobx'
+import { runInAction, action, observable, autorun } from 'mobx'
 import fw from '@newsioaps/firebase-wrapper'
 import * as FWT from '@newsioaps/firebase-wrapper/types'
 import { Paginator } from '@newsioaps/firebase-wrapper/paginator'
@@ -9,8 +9,6 @@ import Api from '../api'
 import Tracker from '../analytics/Tracker'
 import persistance from '../lib/persistance'
 import { IPostbackEvent } from '../types/types'
-
-const defaultMessageText = 'Hey, how can I help you?' // todo: not sure where to put it. Could be also taken from config?
 
 export interface ICreatePostOptions {
   participants: IParticipant[]
@@ -42,18 +40,6 @@ export class ConversationStore {
   @observable private unreadCount: number
 
   constructor(rootStore: RootStore, persistedState?: T.IPersistedState) {
-    this.rootStore = rootStore
-    this.conversationId = persistedState ? persistedState.conversationId : null
-    this.unreadCount = 0
-    this.messages = [
-      {
-        id: 'initial-message',
-        message: defaultMessageText,
-        uid: 'fakeId',
-        timestamp: Date.now(),
-      },
-    ]
-
     autorun(async () => {
       if (this.conversationId && this.rootStore.userStore.guest && this.rootStore.userStore.receiver) {
         this.syncConversation()
@@ -63,6 +49,12 @@ export class ConversationStore {
           this.stopSync()
         }
       }
+    })
+
+    runInAction(() => {
+      this.unreadCount = 0
+      this.conversationId = persistedState ? persistedState.conversationId : null
+      this.rootStore = rootStore
     })
   }
 
@@ -86,6 +78,17 @@ export class ConversationStore {
     return this.unreadCount
   }
 
+  @action
+  public addMessage(uid: string, text: string) {
+    const message = {
+      id: new Date().getTime().toString(),
+      message: text,
+      timestamp: Date.now(),
+      uid,
+    }
+    this.messages.push(message)
+  }
+
   public async sendMessage(text: string) {
     if (this.conversationId) {
       const messageId = await this._sendMessage(text)
@@ -93,19 +96,7 @@ export class ConversationStore {
       return
     }
 
-    const addOptimisticMessage = (text: string) => {
-      const optimisticMessage: Message = {
-        id: 'optimistic-message',
-        message: text,
-        timestamp: Date.now(),
-      }
-
-      runInAction(() => {
-        this.messages.push(optimisticMessage)
-      })
-    }
-
-    addOptimisticMessage(text)
+    this.addMessage('guest-id', text)
     await this.rootStore.userStore.createGuest()
     const postId = await this.createNewConvo(text)
     this.syncConversation()
@@ -141,7 +132,7 @@ export class ConversationStore {
     if (this.conversationId) {
       this.subscriber = fw.conversations.paginateMessages(this.conversationId, messages => {
         runInAction(() => {
-          let msgs: Message[] = []
+          let msgs: Message[] = observable([])
           messages.forEach((msg, mid) => msgs.unshift(Message.createFromApi(mid, msg)))
           this.messages = msgs
         })
@@ -156,7 +147,7 @@ export class ConversationStore {
       receiverId,
       senderId: guestId,
       message: text,
-      defaultMessage: defaultMessageText,
+      defaultMessage: this.messages[0].message || '',
     }
     try {
       const conversationId = await Api.conversations.createWidgetConversation(postObject)

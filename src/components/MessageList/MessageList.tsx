@@ -1,12 +1,16 @@
 import React, { Component } from 'react'
+import { observer, inject } from 'mobx-react'
 import MessageComponent from '../Messages'
-import { Message } from '../../models'
-
+import { RootStore, ConversationStore } from '../../stores'
 
 interface IProps {
-  messages: Message[]
+  convoStore?: ConversationStore
 }
 
+@inject((store: RootStore) => ({
+  convoStore: store.convoStore,
+}))
+@observer
 class MessageList extends Component<IProps> {
   private scrollList
 
@@ -15,9 +19,11 @@ class MessageList extends Component<IProps> {
   }
 
   public render() {
+    const messages = this.props.convoStore!.getMessages()
+
     return (
       <div className="sc-message-list" ref={el => (this.scrollList = el)}>
-        {this.props.messages.map((message, i) => {
+        {messages.map((message, i) => {
           return <MessageComponent message={message} key={i} />
         })}
       </div>

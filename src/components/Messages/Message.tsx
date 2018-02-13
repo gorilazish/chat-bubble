@@ -9,7 +9,6 @@ import { Message } from '../../models'
 
 import './Message.css'
 
-
 interface InjectedProps {
   convoStore?: ConversationStore
   userStore?: UserStore
@@ -97,23 +96,28 @@ class MessageComponent extends Component<IProps, IState> {
         {template.elements.map((elem: FWT.IInputTemplate, idx) => (
           <div key={idx} className={'sc-message--template-element'}>
             {elem.input.label && <p>{elem.input.label}</p>}
-            {!!elem.input.value ? <p>{elem.input.value}</p> : [
-            <input
-              key={message.id + message.timestamp}
-              disabled={!!elem.input.value}
-              placeholder={elem.input.placeholder || 'Enter your email'}
-              onChange={this.handleInputChange}
-              value={elem.input.value || this.state.inputValue}
-              onKeyPress={(e) => this.handleKeyPress(e, elem.input)}
-            />,
-            <button
-            // todo: use message details for key
-              key={message.timestamp + message.id}
-              onClick={() => this.handlePostbackEvent(elem.input.payload)}
-              style={!this.state.validEmail ? { backgroundColor: 'rgba(240, 16, 101, 0.4)' } : undefined}>
-              Submit
-            </button>
-            ]}
+            {!!elem.input.value ? (
+              <p>{elem.input.value}</p>
+            ) : (
+              [
+                <input
+                  key={message.id + message.timestamp}
+                  disabled={!!elem.input.value}
+                  placeholder={elem.input.placeholder || 'Enter your email'}
+                  onChange={this.handleInputChange}
+                  value={elem.input.value || this.state.inputValue}
+                  onKeyPress={e => this.handleKeyPress(e, elem.input)}
+                />,
+                <button
+                  // todo: use message details for key
+                  key={message.timestamp + message.id}
+                  onClick={() => this.handlePostbackEvent(elem.input.payload)}
+                  style={!this.state.validEmail ? { backgroundColor: 'rgba(240, 16, 101, 0.4)' } : undefined}
+                >
+                  Submit
+                </button>,
+              ]
+            )}
           </div>
         ))}
       </div>
@@ -122,12 +126,7 @@ class MessageComponent extends Component<IProps, IState> {
 
   private isOwnMessage() {
     const { userStore, message } = this.props
-    if (userStore && userStore.guest) {
-      return userStore.guest.id === message.uid
-    }
-
-    // this is because when writing very first message, there is no guest created yet, but we want to show optimistic message
-    return true
+    return userStore!.receiver.id !== message.uid
   }
 
   private getAvatarImage() {
@@ -150,9 +149,7 @@ class MessageComponent extends Component<IProps, IState> {
               backgroundImage: `url(${this.getAvatarImage()})`,
             }}
           />
-          <div className={'sc-message--bubble'}>
-            {this.renderMessageOfType()}
-          </div>
+          <div className={'sc-message--bubble'}>{this.renderMessageOfType()}</div>
         </div>
       </div>
     )

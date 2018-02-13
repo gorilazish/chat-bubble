@@ -67,7 +67,6 @@ class App extends React.Component<InjectedProps, IState> {
         isOpen={this.state.isOpen}
         newMessagesCount={convoStore.getUnreadCount()}
         onMessageWasSent={this.handleSendMessage}
-        messageList={convoStore.getMessages()}
         handleClick={this.handleLauncherClick}
       />
     )
