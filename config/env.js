@@ -75,6 +75,9 @@ function getClientEnvironment(publicUrl) {
         // images into the `src` and `import` them in code to get their paths.
         PUBLIC_URL: publicUrl,
         VERSION: JSON.stringify(require('../package.json').version),
+        API_URL: JSON.stringify(process.env.NODE_ENV === 'production' 
+          ? 'https://us-central1-bello-31de8.cloudfunctions.net' 
+          : 'https://us-central1-bello-staging.cloudfunctions.net')
       }
     );
   // Stringify all values so we can feed into Webpack DefinePlugin
