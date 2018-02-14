@@ -64,7 +64,7 @@ export class ConversationStore {
 
   public async persistState(): Promise<void> {
     if (this.conversationId) {
-      await persistance.setItem('BelloWidgetState', { conversationId: this.conversationId })
+      await persistance.setItem('conversationId', this.conversationId, { remote: true })
     } else {
       throw new Error('Persisting incorrect state')
     }

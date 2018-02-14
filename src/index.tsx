@@ -11,11 +11,12 @@ import poster from './lib/poster'
 import * as T from './types/types'
 
 async function getSettings(): Promise<{ settings: T.IBelloWidgetSettings; state?: T.IPersistedState }> {
-  const [settings, state] = await Promise.all([
+  const [settings, conversationId] = await Promise.all([
     poster.sendMessage('request-settings'),
-    persistance.getItem('BelloWidgetState'),
+    persistance.getItem('conversationId', { remote: true }),
   ])
-  return { settings, state: state || undefined }
+  const state = conversationId ? { conversationId } : undefined
+  return { settings, state }
 }
 
 function render(element: HTMLElement, widgetSettings: T.IBelloWidgetSettings, state?: T.IPersistedState) {
@@ -30,10 +31,11 @@ function render(element: HTMLElement, widgetSettings: T.IBelloWidgetSettings, st
   ReactDOM.render(app, element)
 }
 
-getSettings().then(({ settings, state }) => {
-  initFb()
-  loadSegment()
-  useStrict(true)
-  render(document.getElementById('root')!, settings, state)
-})
-.catch(err => console.error(err))
+getSettings()
+  .then(({ settings, state }) => {
+    initFb()
+    loadSegment()
+    useStrict(true)
+    render(document.getElementById('root')!, settings, state)
+  })
+  .catch(err => console.error(err))
