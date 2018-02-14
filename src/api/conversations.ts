@@ -29,12 +29,12 @@ async function postHttp(endpoint: string, body: any): Promise<any> {
  * Resolves with postId
  */
 export async function createWidgetConversation(body: T.ICreateConversationBody): Promise<string> {
-  const path = '/rest/widget/create-conversation'
+  const path = '/api/widget/conversation'
   const res = await postHttp(path, body)
   return res.postId
 }
 
 export async function sendPostbackEvent(body: T.IPostbackEvent): Promise<void> {
-  const path = '/rest/widget/postback'
+  const path = '/api/conversations/postback'
   await postHttp(path, body)
 }
