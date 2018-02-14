@@ -51,7 +51,7 @@
     "build:widget": "node scripts/build.js",
     "build:loader": "NODE_ENV=production webpack --config config/webpack.config.loader.js",
     "test": "node scripts/test.js --env=jsdom",
-    "deploy": "npm run build && firebase deploy --only hosting"
+    "deploy": "FIREBASE_ENV=production npm run build && firebase deploy --only hosting"
   },
   "devDependencies": {
     "@types/jest": "^22.1.1",
