@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie'
 import './loader.css'
 
 interface IEventData {
@@ -19,6 +20,7 @@ const isDev = process.env.NODE_ENV === 'development'
 const EVENT_PREFIX = 'BelloWidgetMessage-'
 const FRAME_ID = 'bello-widget-frame'
 const allowedOrigins = ['https://widget.belloforwork.com', 'https://bello-widget.firebaseapp.com']
+const COOKIE_NAMESPACE = 'BelloWidgetState'
 
 function handleToggleEvent() {
   const frame = document.getElementById(FRAME_ID)
@@ -37,28 +39,19 @@ function handleRequestSettingsEvent() {
   return (window as any).BelloWidgetSettings
 }
 
-function handlePersistEvent(payload) {
-  if (window.localStorage) {
-    localStorage.setItem(payload.key, payload.value)
-  } else {
-    // todo: use fallback
-  }
+function handlePersistEvent({ key, value }): void {
+  const state = Cookies.getJSON(COOKIE_NAMESPACE) || {}
+  state[key] = value
+  Cookies.set(COOKIE_NAMESPACE, state)
 }
 
-function handleStorageGet(payload) {
-  if (window.localStorage) {
-    return localStorage.getItem(payload.key)
-  } else {
-    // todo: use fallback
-  }
+function handleStorageGet({ key }): string {
+  const state = Cookies.getJSON(COOKIE_NAMESPACE) || {}
+  return state[key]
 }
 
 function handleStorageClear() {
-  if (window.localStorage) {
-    localStorage.clear()
-  } else {
-    // todo: use fallback
-  }
+  Cookies.remove(COOKIE_NAMESPACE)
 }
 
 function sendResponse(event: MessageEvent, handler) {
