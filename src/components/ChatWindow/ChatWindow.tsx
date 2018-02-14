@@ -26,13 +26,21 @@ class ChatWindow extends Component<IProps> {
     const classList = ['sc-chat-window', this.props.isOpen ? 'opened' : 'closed']
     return (
       <div
+        onWheel={e => {
+          e.preventDefault()
+        }}
         className={classList.join(' ')}
-        style={isMobile ? {
-            position: 'fixed',
-            height: '100%',
-            zIndex: 1,
-            borderRadius: 0
-          } : undefined}>
+        style={
+          isMobile
+            ? {
+                position: 'fixed',
+                height: '100%',
+                zIndex: 1,
+                borderRadius: 0,
+              }
+            : undefined
+        }
+      >
         <Header onClose={this.props.onClose} />
         <MessageList />
         <UserInput showEmoji={this.props.showEmoji} onSubmit={this.onUserInputSubmit} />

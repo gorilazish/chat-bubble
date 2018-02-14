@@ -18,11 +18,22 @@ class MessageList extends Component<IProps> {
     this.scrollList.scrollTop = this.scrollList.scrollHeight
   }
 
+  private handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (this.scrollList) {
+      const scrollTo = e.deltaY
+      this.scrollList.scrollTop = this.scrollList.scrollTop + scrollTo
+    }
+  }
+
   public render() {
     const messages = this.props.convoStore!.getMessages()
 
     return (
-      <div className="sc-message-list" ref={el => (this.scrollList = el)}>
+      <div
+        onWheel={this.handleWheel}
+        className="sc-message-list"
+        ref={el => (this.scrollList = el)}
+      >
         {messages.map((message, i) => {
           return <MessageComponent message={message} key={i} />
         })}
