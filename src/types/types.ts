@@ -1,9 +1,3 @@
-import * as T from '@newsioaps/firebase-wrapper/types'
-import { Message } from '../models'
-
-type AuthorType = 'me' | 'them'
-type MessageType = 'text' | 'emoji' | 'templateMessage'
-type DataType = { text: string } | { emoji: string }
 
 export interface IBelloWidgetSettings {
   userId: string
@@ -11,15 +5,6 @@ export interface IBelloWidgetSettings {
 
 export type IPersistedState = {
   conversationId: string
-}
-
-export interface IWidgetMessage {
-  author: AuthorType
-  authorImage?: string
-  type: MessageType
-  data: DataType
-  template: T.ITemplate | null
-  originalMessage: Message
 }
 
 export interface IState {

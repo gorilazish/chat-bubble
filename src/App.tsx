@@ -4,6 +4,10 @@ import { observer, inject } from 'mobx-react'
 import { UserStore, RootStore, ConversationStore } from './stores'
 import poster from './lib/poster'
 
+import './styles/reset.css'
+import './styles/global.css'
+
+
 interface InjectedProps {
   userStore?: UserStore
   convoStore?: ConversationStore
