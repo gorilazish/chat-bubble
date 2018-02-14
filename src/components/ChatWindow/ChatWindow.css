@@ -20,10 +20,10 @@
 
 .sc-message-list {
   flex: 1;
-  overflow-y: auto;
   background-color: white;
   background-size: 100%;
   padding: 40px 0px;
+  overflow-y: scroll;
 }
 
 .sc-message--me {

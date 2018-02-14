@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import ChatWindow from '../ChatWindow'
+import { isMobile } from '../../lib/isMobile'
 import launcherIcon from '../../assets/bello-logo.svg'
 import launcherIconActive from '../../assets/close-icon.svg'
+
 
 import './Launcher.css'
 
@@ -51,7 +53,7 @@ class Launcher extends Component<IProps, IState> {
           flexDirection: 'column',
           justifyContent: 'flex-end',
           alignItems: 'flex-end',
-          padding: 8,
+          padding: (isMobile && isOpen) ? 0 : 8,
         }}
       >
         <div />
@@ -61,7 +63,7 @@ class Launcher extends Component<IProps, IState> {
           onClose={this.handleClick}
           showEmoji={this.props.showEmoji}
         />
-        <div className={classList.join(' ')} onClick={this.handleClick}>
+        <div className={classList.join(' ')} style={(isMobile && isOpen) ? { display: 'none' } : undefined} onClick={this.handleClick}>
           <MessageCount count={this.props.newMessagesCount} isOpen={isOpen} />
           <img className={'sc-open-icon'} src={launcherIconActive} />
           <img className={'sc-closed-icon'} src={launcherIcon} />

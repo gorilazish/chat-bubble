@@ -69,11 +69,20 @@
   padding-left: 10px
 }
 
+.sc-message--template-success {
+  padding: 10px 16px;
+  color: #27ae60;
+  font-weight: 700;
+  width: 100%;
+  text-align: right;
+  text-transform: uppercase;
+}
+
 .sc-message--template-element input {
   border: none;
   width: 100%;
   font-family: inherit;
-  font-size: .9rem;
+  font-size: 16px;
   line-height: 3;
   padding-right: 5px;
 }
