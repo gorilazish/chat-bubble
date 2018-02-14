@@ -46,7 +46,7 @@
 .sc-message--content.sent .sc-message--bubble {
   color: white;
   background-color: #485460;
-  max-width: calc(100% - 120px);
+  max-width: 90%;
   word-wrap: break-word;
 }
 

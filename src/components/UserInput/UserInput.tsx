@@ -11,15 +11,16 @@ interface IProps extends React.HTMLAttributes<HTMLDivElement> {
 
 interface IState {
   inputActive: boolean
+  value: string
 }
 
 class UserInput extends Component<IProps, IState> {
-  private userInput
 
   constructor(props) {
     super(props)
     this.state = {
       inputActive: false,
+      value: '',
     }
   }
 
@@ -31,10 +32,10 @@ class UserInput extends Component<IProps, IState> {
 
   private submitText = (event) => {
     event.preventDefault()
-    const text = this.userInput.textContent
+    const text = this.state.value
     if (text && text.length > 0) {
       this.props.onSubmit(text)
-      this.userInput.innerHTML = ''
+      this.setState({ value: '' })
     }
   }
 
@@ -44,6 +45,10 @@ class UserInput extends Component<IProps, IState> {
       type: 'emoji',
       data: { emoji },
     })
+  }
+
+  private handleChange = (e) => {
+    this.setState({ value: e.target.value })
   }
 
   private handleOnFocus = () => {
@@ -56,29 +61,27 @@ class UserInput extends Component<IProps, IState> {
 
   public render() {
     return (
-      <form className={`sc-user-input ${(this.state.inputActive ? 'active' : '')}`}>
-        <div
-          role='button'
+      <div className={`sc-user-input ${(this.state.inputActive ? 'active' : '')}`}>
+        <input
           tabIndex={0}
+          value={this.state.value}
+          onChange={this.handleChange}
           onFocus={this.handleOnFocus}
           onBlur={this.handleOnBlur}
-          ref={(e) => { this.userInput = e }}
           onKeyDown={this.handleKey}
-          contentEditable={true}
-          // placeholder='Write a reply...'
+          placeholder='Write a reply...'
           className='sc-user-input--text'
-        >
-        </div>
+        />
         <div className='sc-user-input--buttons'>
-          <div className='sc-user-input--button'></div>
-          <div className='sc-user-input--button'>
-            {this.props.showEmoji && <EmojiIcon onEmojiPicked={this.handleEmojiPicked} />}
-          </div>
+          {this.props.showEmoji && 
+            <div className='sc-user-input--button'>
+              <EmojiIcon onEmojiPicked={this.handleEmojiPicked} />
+            </div>}
           <div className='sc-user-input--button'>
             <SendIcon onClick={this.submitText} />
           </div>
         </div>
-      </form>
+      </div>
     )
   }
 }
