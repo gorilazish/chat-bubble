@@ -14,6 +14,11 @@ if (!NODE_ENV) {
   );
 }
 
+const FIREBASE_ENV = process.env.FIREBASE_ENV
+if (!FIREBASE_ENV) {
+  throw new Error('The FIREBASE_ENV env variable is required but was not specified')
+}
+
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 var dotenvFiles = [
   `${paths.dotenv}.${NODE_ENV}.local`,
@@ -75,6 +80,7 @@ function getClientEnvironment(publicUrl) {
         // images into the `src` and `import` them in code to get their paths.
         PUBLIC_URL: publicUrl,
         VERSION: JSON.stringify(require('../package.json').version),
+        FIREBASE_ENV: FIREBASE_ENV,
         API_URL: JSON.stringify(process.env.NODE_ENV === 'production' 
           ? 'https://us-central1-bello-31de8.cloudfunctions.net' 
           : 'https://us-central1-bello-staging.cloudfunctions.net')
