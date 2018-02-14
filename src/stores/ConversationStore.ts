@@ -158,7 +158,7 @@ export class ConversationStore {
       return conversationId
     } catch (err) {
       runInAction(() => {
-        this.messages = this.messages.filter(m => m.id !== 'optimistic-message')
+        this.messages = this.messages.filter(m => m.uid !== 'guest-id')
       })
       return err
     }
