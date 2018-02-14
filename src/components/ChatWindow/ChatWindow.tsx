@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import MessageList from '../MessageList'
 import UserInput from '../UserInput'
 import Header from '../Header'
+import { isMobile } from '../../lib/isMobile'
 
 import './ChatWindow.css'
 
@@ -24,7 +25,14 @@ class ChatWindow extends Component<IProps> {
   public render() {
     const classList = ['sc-chat-window', this.props.isOpen ? 'opened' : 'closed']
     return (
-      <div className={classList.join(' ')}>
+      <div
+        className={classList.join(' ')}
+        style={isMobile ? {
+            position: 'fixed',
+            height: '100%',
+            zIndex: 1,
+            borderRadius: 0
+          } : undefined}>
         <Header onClose={this.props.onClose} />
         <MessageList />
         <UserInput showEmoji={this.props.showEmoji} onSubmit={this.onUserInputSubmit} />

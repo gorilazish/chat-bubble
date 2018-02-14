@@ -109,6 +109,7 @@ class MessageComponent extends Component<IProps, IState> {
               [
                 <input
                   key={message.id + message.timestamp}
+                  type={'email'}
                   disabled={!!elem.input.value}
                   placeholder={elem.input.placeholder || 'Enter your email'}
                   onChange={this.handleInputChange}
