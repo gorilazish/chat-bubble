@@ -30,6 +30,7 @@
 }
 
 .sc-message--bubble {
+  overflow: hidden;
   border-radius: 6px;
   font-weight: 300;
   font-size: 14px;
@@ -72,19 +73,17 @@
   border: none;
   width: 100%;
   font-family: inherit;
-  font-size: .8rem;
+  font-size: .9rem;
   line-height: 3;
-}
-
-/* todo: move to global styles/reset or somehwere */
-textarea:focus, input:focus{
-  outline: none;
+  padding-right: 5px;
 }
 
 .sc-message--template-element button {
   border: none;
   background-color: rgb(240, 16, 101);
   cursor: pointer;
+  color: white;
+  width: 25%;
 }
 
 .sc-message--emoji {

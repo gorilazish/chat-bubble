@@ -97,7 +97,8 @@ class MessageComponent extends Component<IProps, IState> {
           <div key={idx} className={'sc-message--template-element'}>
             {elem.input.label && <p>{elem.input.label}</p>}
             {!!elem.input.value ? (
-              <p>{elem.input.value}</p>
+              // todo: move styles from here
+              <p style={{ margin: '10px 0', overflowX: 'scroll' }} >{elem.input.value}</p>
             ) : (
               [
                 <input
@@ -109,12 +110,11 @@ class MessageComponent extends Component<IProps, IState> {
                   onKeyPress={e => this.handleKeyPress(e, elem.input)}
                 />,
                 <button
-                  // todo: use message details for key
                   key={message.timestamp + message.id}
                   onClick={() => this.handlePostbackEvent(elem.input.payload)}
-                  style={!this.state.validEmail ? { backgroundColor: 'rgba(240, 16, 101, 0.4)' } : undefined}
+                  style={!this.state.validEmail ? { backgroundColor: 'rgba(240, 16, 101, 0.3)' } : undefined}
                 >
-                  Submit
+                  OK
                 </button>,
               ]
             )}
