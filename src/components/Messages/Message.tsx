@@ -89,6 +89,13 @@ class MessageComponent extends Component<IProps, IState> {
     )
   }
 
+  // todo: temporary implementation
+  private renderFullfiledTemplate = () => {
+    return (
+      <p className={'sc-message--template-success'}>DONE</p>      
+    )
+  }
+
   private renderInputTemplate(template: FWT.ITemplate) {
     const { message } = this.props
     return (
@@ -97,8 +104,7 @@ class MessageComponent extends Component<IProps, IState> {
           <div key={idx} className={'sc-message--template-element'}>
             {elem.input.label && <p>{elem.input.label}</p>}
             {!!elem.input.value ? (
-              // todo: move styles from here
-              <p style={{ margin: '10px 0', overflowX: 'scroll' }} >{elem.input.value}</p>
+              this.renderFullfiledTemplate()
             ) : (
               [
                 <input
