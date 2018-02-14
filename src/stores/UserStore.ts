@@ -20,11 +20,14 @@ export class UserStore {
   public async createGuest(): Promise<User> {
     if (!this._guest) {
       const user = await fw.auth.signInAnonymously()
-      this._guest = new User({
-        id: user.uid,
+      const guestUser = new User({ id: user.uid })
+      runInAction(() => {
+        this._guest = guestUser
       })
+      return guestUser
+    } else {
+      return this._guest
     }
-    return this._guest
   }
 
   public get receiver(): User {
@@ -46,6 +49,9 @@ export class UserStore {
   private syncReceiverProfile() {
     const uid = this.rootStore.widgetSettings.userId
     fw.auth.syncUserProfile(uid, user => {
+      if (!this._hasLoadedReceiver && user) {
+        this.rootStore.convoStore.addMessage(uid, 'Hey, how can I help you?')
+      }
       runInAction(() => {
         this._receiver = user ? User.createFromApi(user) : null
         this._hasLoadedReceiver = true

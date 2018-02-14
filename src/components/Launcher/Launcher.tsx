@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import ChatWindow from '../ChatWindow'
 import launcherIcon from '../../assets/bello-logo.svg'
 import launcherIconActive from '../../assets/close-icon.svg'
-import { IWidgetMessage } from 'types/types'
 
 import './Launcher.css'
 
@@ -10,8 +9,7 @@ interface IProps {
   isOpen?: boolean
   showEmoji: boolean
   newMessagesCount?: number
-  messageList: IWidgetMessage[]
-  onMessageWasSent: (message: IWidgetMessage) => void
+  onMessageWasSent: (messageText: string) => void
   handleClick?: () => void
 }
 
@@ -58,7 +56,6 @@ class Launcher extends Component<IProps, IState> {
       >
         <div />
         <ChatWindow
-          messageList={this.props.messageList}
           onUserInputSubmit={this.props.onMessageWasSent}
           isOpen={isOpen}
           onClose={this.handleClick}

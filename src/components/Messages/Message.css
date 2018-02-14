@@ -29,8 +29,8 @@
   margin-right: 15px;
 }
 
-.sc-message--text {
-  padding: 17px 20px;
+.sc-message--bubble {
+  overflow: hidden;
   border-radius: 6px;
   font-weight: 300;
   font-size: 14px;
@@ -39,17 +39,51 @@
   -webkit-font-smoothing: subpixel-antialiased;
 }
 
-.sc-message--content.sent .sc-message--text {
+.sc-message--text {
+  padding: 17px 20px;
+}
+
+.sc-message--content.sent .sc-message--bubble {
   color: white;
   background-color: #485460;
   max-width: calc(100% - 120px);
   word-wrap: break-word;
 }
 
-.sc-message--content.received .sc-message--text {
+.sc-message--content.received .sc-message--bubble {
   color: #263238;
   background-color: #f4f7f9;
   margin-right: 40px;
+}
+
+.sc-message--template-content {
+  background-color: white;
+  overflow: hidden;
+  border: 1px solid #F4F7F5;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.sc-message--template-element {
+  display: flex;
+  padding-left: 10px
+}
+
+.sc-message--template-element input {
+  border: none;
+  width: 100%;
+  font-family: inherit;
+  font-size: .9rem;
+  line-height: 3;
+  padding-right: 5px;
+}
+
+.sc-message--template-element button {
+  border: none;
+  background-color: rgb(240, 16, 101);
+  cursor: pointer;
+  color: white;
+  width: 25%;
 }
 
 .sc-message--emoji {

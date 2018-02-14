@@ -1,19 +1,6 @@
-html {
-  box-sizing: border-box;
-}
-*,
-*:before,
-*:after {
-  box-sizing: inherit;
-}
-
-body {
-  padding: 0;
-  margin: 0;
-}
-
 .sc-chat-window {
   width: 100%;
+  overflow: hidden;
   flex: 1 1 auto;
   margin-bottom: 12px;
   box-sizing: border-box;

@@ -6,7 +6,7 @@ import './UserInput.css'
 
 interface IProps extends React.HTMLAttributes<HTMLDivElement> {
   showEmoji: boolean
-  onSubmit: (message) => void
+  onSubmit: (text) => void
 }
 
 interface IState {
@@ -33,11 +33,7 @@ class UserInput extends Component<IProps, IState> {
     event.preventDefault()
     const text = this.userInput.textContent
     if (text && text.length > 0) {
-      this.props.onSubmit({
-        author: 'me',
-        type: 'text',
-        data: { text },
-      })
+      this.props.onSubmit(text)
       this.userInput.innerHTML = ''
     }
   }

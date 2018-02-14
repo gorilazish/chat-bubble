@@ -1,11 +1,14 @@
-import { runInAction, observable, autorun } from 'mobx'
+import { runInAction, action, observable, autorun } from 'mobx'
 import fw from '@newsioaps/firebase-wrapper'
 import * as FWT from '@newsioaps/firebase-wrapper/types'
 import { Paginator } from '@newsioaps/firebase-wrapper/paginator'
 import { RootStore } from 'stores'
+import { Message } from '../models'
 import * as T from '../types/types'
+import Api from '../api'
 import Tracker from '../analytics/Tracker'
 import persistance from '../lib/persistance'
+import { IPostbackEvent } from '../types/types'
 
 export interface ICreatePostOptions {
   participants: IParticipant[]
@@ -33,14 +36,10 @@ export class ConversationStore {
   private subscriber: Paginator<FWT.IMessage> | null
   private unreadCountSubscriber: (() => void) | null
   @observable private conversationId: string | null
-  @observable private messages: FWT.IMessage[] = []
+  @observable private messages: Message[] = []
   @observable private unreadCount: number
 
   constructor(rootStore: RootStore, persistedState?: T.IPersistedState) {
-    this.rootStore = rootStore
-    this.conversationId = persistedState ? persistedState.conversationId : null
-    this.unreadCount = 0
-
     autorun(async () => {
       if (this.conversationId && this.rootStore.userStore.guest && this.rootStore.userStore.receiver) {
         this.syncConversation()
@@ -50,6 +49,12 @@ export class ConversationStore {
           this.stopSync()
         }
       }
+    })
+
+    runInAction(() => {
+      this.unreadCount = 0
+      this.conversationId = persistedState ? persistedState.conversationId : null
+      this.rootStore = rootStore
     })
   }
 
@@ -65,12 +70,23 @@ export class ConversationStore {
     }
   }
 
-  public getMessages(): FWT.IMessage[] {
+  public getMessages(): Message[] {
     return this.messages
   }
 
   public getUnreadCount(): number {
     return this.unreadCount
+  }
+
+  @action
+  public addMessage(uid: string, text: string) {
+    const message = {
+      id: new Date().getTime().toString(),
+      message: text,
+      timestamp: Date.now(),
+      uid,
+    }
+    this.messages.push(message)
   }
 
   public async sendMessage(text: string) {
@@ -80,11 +96,28 @@ export class ConversationStore {
       return
     }
 
+    this.addMessage('guest-id', text)
     await this.rootStore.userStore.createGuest()
-    const postId = await this.createNewConvo()
-    const messageId = await this._sendMessage(text)
+    const postId = await this.createNewConvo(text)
     this.syncConversation()
-    Tracker.analyticsStartConvo(postId, messageId)
+    Tracker.analyticsStartConvo(postId)
+  }
+
+  // todo: use element index here
+  public async sendPostbackEvent(messageId: string, originalPayload: string, value: string) {
+    if (this.conversationId) {
+      const event: IPostbackEvent = {
+        messageId,
+        postId: this.conversationId,
+        payload: originalPayload,
+        sender: { id: this.rootStore.userStore.guest!.id },
+        receivers: [{ id: this.rootStore.userStore.receiver!.id }],
+        data: {
+          value,
+        },
+      }
+      await Api.conversations.sendPostbackEvent(event)
+    }
   }
 
   public clearUnreadMessages() {
@@ -99,27 +132,36 @@ export class ConversationStore {
     if (this.conversationId) {
       this.subscriber = fw.conversations.paginateMessages(this.conversationId, messages => {
         runInAction(() => {
-          let msgs: FWT.IMessage[] = []
-          messages.forEach(msg => msgs.unshift(msg))
+          let msgs: Message[] = observable([])
+          messages.forEach((msg, mid) => msgs.unshift(Message.createFromApi(mid, msg)))
           this.messages = msgs
         })
       })
     }
   }
 
-  private async createNewConvo(): Promise<string> {
-    const guest = this.rootStore.userStore.guest!
-    const receiver = this.rootStore.userStore.receiver
-    const postObject: ICreatePostOptions = {
-      participants: [{ id: receiver.id, type: 'user' }],
-      title: 'Widget Contact Request',
+  private async createNewConvo(text: string): Promise<string> {
+    const guestId = this.rootStore.userStore.guest!.id
+    const receiverId = this.rootStore.userStore.receiver.id
+    const postObject: T.ICreateConversationBody = {
+      receiverId,
+      senderId: guestId,
+      message: text,
+      defaultMessage: this.messages[0].message || '',
     }
-    const conversationId = await fw.posts.addPost(guest.id, postObject)
-    runInAction(() => {
-      this.conversationId = conversationId
-    })
-    this.persistState()
-    return conversationId
+    try {
+      const conversationId = await Api.conversations.createWidgetConversation(postObject)
+      runInAction(() => {
+        this.conversationId = conversationId
+      })
+      this.persistState()
+      return conversationId
+    } catch (err) {
+      runInAction(() => {
+        this.messages = this.messages.filter(m => m.uid !== 'guest-id')
+      })
+      return err
+    }
   }
 
   private async _sendMessage(text: string): Promise<string> {

@@ -1,0 +1,52 @@
+.large {
+  font-size: 48px;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+}
+
+body {
+  font-weight: 300;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  color: #333;
+}
+
+svg {
+  vertical-align: middle;
+}
+
+input:focus, select:focus, button:focus, textarea:focus {
+  outline: none;
+}
+
+input {
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: rgb(189, 189, 189);
+}
+::-moz-placeholder { /* Firefox 19+ */
+  color: rgb(189, 189, 189);
+}
+:-ms-input-placeholder { /* IE 10+ */
+  color: rgb(189, 189, 189);
+}
+:-moz-placeholder { /* Firefox 18- */
+  color: rgb(189, 189, 189);
+}
+
+a, a:hover, a:active, a:focus {
+  color: inherit;
+  text-decoration: inherit;
+}

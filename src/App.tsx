@@ -1,10 +1,12 @@
 import * as React from 'react'
 import { Launcher } from './components'
-import * as T from '@newsioaps/firebase-wrapper/types'
 import { observer, inject } from 'mobx-react'
 import { UserStore, RootStore, ConversationStore } from './stores'
-import * as Types from './types/types'
 import poster from './lib/poster'
+
+import './styles/reset.css'
+import './styles/global.css'
+
 
 interface InjectedProps {
   userStore?: UserStore
@@ -46,26 +48,7 @@ class App extends React.Component<InjectedProps, IState> {
     poster.sendMessage('toggle')
   }
 
-  private transformMessages = (messages: T.IMessage[]): Types.IWidgetMessage[] => {
-    return messages.map(this.transformMessage)
-  }
-
-  private transformMessage = (comment: T.IMessage): Types.IWidgetMessage => {
-    const guest = this.props.userStore!.guest
-    const receiver = this.props.userStore!.receiver
-    const isOwnMessage = guest ? comment.uid === guest.id : false
-    return {
-      author: isOwnMessage ? 'me' : 'them',
-      authorImage: !isOwnMessage ? receiver.getSmallPhoto() : undefined,
-      type: 'text',
-      data: {
-        text: comment.message || '',
-      },
-    }
-  }
-
-  private handleSendMessage = message => {
-    const messageText = message.data.text || message.data.code
+  private handleSendMessage = messageText => {
     this.props.convoStore!.sendMessage(messageText)
   }
 
@@ -88,7 +71,6 @@ class App extends React.Component<InjectedProps, IState> {
         isOpen={this.state.isOpen}
         newMessagesCount={convoStore.getUnreadCount()}
         onMessageWasSent={this.handleSendMessage}
-        messageList={this.transformMessages(convoStore.getMessages())}
         handleClick={this.handleLauncherClick}
       />
     )
