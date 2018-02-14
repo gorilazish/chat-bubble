@@ -81,9 +81,9 @@ function getClientEnvironment(publicUrl) {
         PUBLIC_URL: publicUrl,
         VERSION: JSON.stringify(require('../package.json').version),
         FIREBASE_ENV: FIREBASE_ENV,
-        API_URL: JSON.stringify(process.env.NODE_ENV === 'production' 
+        API_URL: (process.env.FIREBASE_ENV === 'production') 
           ? 'https://us-central1-bello-31de8.cloudfunctions.net' 
-          : 'https://us-central1-bello-staging.cloudfunctions.net')
+          : 'https://us-central1-bello-staging.cloudfunctions.net'
       }
     );
   // Stringify all values so we can feed into Webpack DefinePlugin
